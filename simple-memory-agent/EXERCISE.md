@@ -126,7 +126,7 @@ git commit -m "Problem 1: Memory agent demo and analysis"
 
 ### Objective
 
-Convert the CLI-based `agent.py` into a FastAPI application with REST endpoints. Demonstrate multi-tenant memory isolation and multi-session tracking by showing two users (Alice and Carol) interacting with the agent in different sessions.
+Create a FastAPI wrapper (`agent_api.py`) on top of the existing `agent.py`. The wrapper provides REST endpoints while importing and using the `Agent` class from `agent.py`. Demonstrate multi-tenant memory isolation and multi-session tracking by showing two users (Alice and Carol) interacting with the agent in different sessions.
 
 ### Reference Code
 
@@ -140,7 +140,7 @@ Convert the CLI-based `agent.py` into a FastAPI application with REST endpoints.
 
 #### 1. Create `agent_api.py`
 
-Convert `agent.py` into a FastAPI application with these endpoints:
+Create a FastAPI wrapper that imports the `Agent` class from `agent.py` and exposes these endpoints:
 
 ##### `/ping` (GET)
 Health check endpoint.
@@ -165,11 +165,47 @@ Main conversation endpoint. Takes user query and returns agent response.
 **Response:**
 Should stream or return the agent's response.
 
-**Implementation Notes:**
-- Use the existing `Agent` class from `agent.py`
-- Create ephemeral Agent instance for each request
-- Pass user_id, run_id to Agent constructor
-- Agent response should be clean (user/AI conversation only)
+**Implementation Hints:**
+
+Your `agent_api.py` should follow this structure:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any
+
+from agent import Agent  # Import Agent class from agent.py
+
+app = FastAPI(
+    title="Memory Agent API",
+    description="Multi-tenant conversational agent with semantic memory",
+    version="1.0.0"
+)
+
+# Session cache: run_id -> Agent instance
+# ONE Agent per session (run_id) maintained in memory
+_session_cache: Dict[str, Agent] = {}
+
+def _get_or_create_agent(user_id: str, run_id: str) -> Agent:
+    """Get existing Agent for session or create new one."""
+    if run_id in _session_cache:
+        return _session_cache[run_id]
+
+    # Create new agent for this session
+    agent = Agent(user_id=user_id, run_id=run_id, api_key=api_key)
+    _session_cache[run_id] = agent
+    return agent
+
+# Define Pydantic request/response models here
+# Implement /ping and /invocation endpoints
+```
+
+**Key Design Points:**
+- Import `Agent` from `agent.py` - don't reimplement it
+- Maintain session cache: ONE Agent instance per `run_id`
+- Reuse the same Agent for multiple turns within a session
+- Pass `user_id` and `run_id` to Agent constructor
+- Extract clean response text from Agent output
 
 #### 2. Demonstrate Multi-Tenant Isolation
 
@@ -179,8 +215,32 @@ Create two conversation files showing different users:
 
 **Session 1 (5 utterances in SAME session):**
 
-Show Alice introducing herself and asking questions. Example:
+Create Alice's first session with 5 conversation turns. Here's the pattern for Turn 1:
 
+```bash
+echo "=== Alice Session 1 ===" > alice_output.txt
+echo "" >> alice_output.txt
+
+# Turn 1
+echo "User: Hi, I'm Alice. I'm a software engineer." >> alice_output.txt
+response=$(curl -s -X POST http://127.0.0.1:9090/invocation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "alice",
+    "run_id": "alice-session-1",
+    "query": "Hi, I'\''m Alice. I'\''m a software engineer."
+  }' | jq -r '.response')
+echo "Agent: $response" >> alice_output.txt
+echo "" >> alice_output.txt
+```
+
+**Write the remaining 4 turns yourself** using the same pattern with these queries:
+- Turn 2: "I prefer Python for development."
+- Turn 3: "What programming languages do I like?"
+- Turn 4: "I'm working on a FastAPI project."
+- Turn 5: "What have we discussed so far?"
+
+Expected conversation flow:
 ```
 User: Hi, I'm Alice. I'm a software engineer.
 Agent: Hello Alice! Nice to meet you...
@@ -200,8 +260,32 @@ Agent: We've talked about your role as a software engineer, your preference for 
 
 **Session 2 (different run_id, same user_id):**
 
-Start a NEW session and ask follow-up questions to demonstrate cross-session memory recall:
+Start a NEW session (different `run_id`) to demonstrate cross-session memory recall. Here's the pattern for Turn 1:
 
+```bash
+echo "" >> alice_output.txt
+echo "=== Alice Session 2 (New Session) ===" >> alice_output.txt
+echo "" >> alice_output.txt
+
+# Turn 1
+echo "User: What do you remember about me?" >> alice_output.txt
+response=$(curl -s -X POST http://127.0.0.1:9090/invocation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "alice",
+    "run_id": "alice-session-2",
+    "query": "What do you remember about me?"
+  }' | jq -r '.response')
+echo "Agent: $response" >> alice_output.txt
+echo "" >> alice_output.txt
+```
+
+**Write Turn 2 yourself** using the same pattern:
+- Turn 2: "What project am I working on?"
+
+**Note:** Use `run_id: "alice-session-2"` (different from session 1) but same `user_id: "alice"`.
+
+Expected conversation flow:
 ```
 User: What do you remember about me?
 Agent: You're Alice, a software engineer who prefers Python...
@@ -214,8 +298,32 @@ Agent: You mentioned working on a FastAPI project...
 
 **Session 1 (Carol's separate session):**
 
-Carol asks similar questions to Alice to demonstrate user isolation:
+Create Carol's session to demonstrate user isolation. Here's the pattern for Turn 1:
 
+```bash
+echo "=== Carol Session 1 ===" > carol_output.txt
+echo "" >> carol_output.txt
+
+# Turn 1
+echo "User: Hi, I'm Carol. I'm a data scientist." >> carol_output.txt
+response=$(curl -s -X POST http://127.0.0.1:9090/invocation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "carol",
+    "run_id": "carol-session-1",
+    "query": "Hi, I'\''m Carol. I'\''m a data scientist."
+  }' | jq -r '.response')
+echo "Agent: $response" >> carol_output.txt
+echo "" >> carol_output.txt
+```
+
+**Write the remaining 2 turns yourself** using the same pattern:
+- Turn 2: "What programming languages do I like?"
+- Turn 3: "Do you know what Alice prefers?"
+
+**Note:** Use `user_id: "carol"` (different from Alice) to demonstrate user isolation.
+
+Expected conversation flow:
 ```
 User: Hi, I'm Carol. I'm a data scientist.
 Agent: Hello Carol! Nice to meet you...
@@ -254,7 +362,10 @@ Agent: Got it! I'll remember that you prefer Python.
 1. **agent_api.py** - FastAPI application with `/ping` and `/invocation` endpoints
 2. **alice_output.txt** - Alice's conversations (Session 1: 5 utterances, Session 2: follow-up questions)
 3. **carol_output.txt** - Carol's conversation demonstrating user isolation
-4. **test_api.sh** (optional but recommended) - Script to test your endpoints
+
+**Optional (recommended):**
+- Shell scripts (e.g., `alice_session1.sh`, `alice_session2.sh`, `carol_session1.sh`) to automate testing
+- These scripts make it easy to regenerate output files and verify behavior
 
 ### Testing Your Implementation
 
@@ -294,7 +405,11 @@ Expected response:
 
 #### Step 4: Generate Alice's Conversations
 
-Run Alice's session scripts to generate her output file:
+You can run the curl commands directly or create shell scripts for automation.
+
+**Option A: Run curl commands manually** (following the patterns from section 2)
+
+**Option B: Create and run shell scripts** (recommended for automation):
 
 ```bash
 # Session 1: 5 utterances
@@ -309,7 +424,7 @@ cat alice_output.txt
 
 #### Step 5: Generate Carol's Conversations
 
-Run Carol's session script to demonstrate user isolation:
+Similarly, run Carol's conversation:
 
 ```bash
 # Session 1: User isolation test
