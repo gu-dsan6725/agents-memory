@@ -52,99 +52,83 @@ uv run python agent.py 2>&1 | tee agent_output.log
 
 The demo takes about 30-60 seconds to complete.
 
-#### 2. Review the Output
+#### 2. Analyze Output and Write Explanation
 
-Open `agent_output.log` and look for:
+**⚠️ ACADEMIC INTEGRITY REQUIREMENT:**
 
-**Session Information:**
-```
-Initializing Agent - user: demo_user, agent: memory-agent, session: 75c52f1d
-```
-- **user_id**: `demo_user` - The user identifier
-- **agent_id**: `memory-agent` - The agent identifier
-- **session/run_id**: `75c52f1d` - Unique session ID for this conversation
+You MUST write your explanation document **yourself** - do NOT use ChatGPT, Claude, or any other AI tool to generate this document. This is an analysis exercise to ensure you understand the system. AI-generated submissions will receive a zero.
 
-**Turn-by-Turn Conversations:**
-Each turn shows:
-- User input
-- Agent response
-- Tool calls (when agent uses memory tools)
+**Task:** Create a file named `agent_output_explanation.md` analyzing your `agent_output.log`.
 
-**Tool Usage Examples:**
-```
-Tool #1: insert_memory
-Tool #2: insert_memory
-Tool #3: insert_memory
-```
+**What to include in your explanation:**
 
-When you see these, the agent is explicitly storing information.
+1. **Session Information** - Identify and explain the user_id, agent_id, and run_id
+2. **Memory Types** - Find and categorize examples of:
+   - Factual memory (personal facts: name, occupation, etc.)
+   - Semantic memory (knowledge/concepts learned)
+   - Preference memory (likes/dislikes, coding preferences)
+   - Episodic memory (specific events/projects recalled)
+3. **Tool Usage Patterns** - When does the agent use `insert_memory` tool vs. automatic background storage?
+4. **Memory Recall** - Which turns trigger memory search? How do you know?
+5. **Single Session** - Explain how all 7 turns happen in ONE session and why that matters
 
-**Memory Statistics (at end):**
-```
-Memory Statistics:
-  Total memories stored: 17
+**What we're looking for:**
+- Evidence you READ the log file (specific line numbers, quotes from output)
+- YOUR understanding in YOUR words (not AI-generated prose)
+- Specific examples from the output supporting your analysis
+- Clear explanations of when/why memory operations occur
+- Understanding of single-session vs. multi-session concepts
 
-Sample memories:
-  - Name is Alice
-  - Familiar with scikit-learn, TensorFlow, Keras, and PyTorch libraries
-  - Can help debug machine learning code issues
-```
+**Format:** Use markdown with clear headers. Length: 1-2 pages. Be specific and cite examples from your log.
 
-#### 3. Understand Different Memory Types
+**Hints:**
+- Look for patterns in which turns show "Tool #X: insert_memory"
+- Compare turns 3, 5, 7 - what do they have in common?
+- Check the "Memory Statistics" section at the end
+- Notice when the agent's response changes based on previous turns
+- Trace a single piece of information (like "Alice") through multiple turns
 
-In the output, identify examples of each memory type:
+#### 3. Commit Your Work
 
-**Factual Memory** (Turn 1):
-- "Name is Alice"
-- "Is a software engineer"
-- "Specializes in Python"
-
-**Semantic Memory** (Turn 2):
-- "Working on a machine learning project"
-- "Uses scikit-learn for the project"
-- "Familiar with scikit-learn, TensorFlow, Keras, PyTorch"
-
-**Preference Memory** (Turn 4-5):
-- "Favorite programming language is Python"
-- "Prefers clean, maintainable code"
-
-**Episodic Memory** (Turn 7):
-- Remembers the specific ML project mentioned earlier
-- Recalls the conversation context
-
-**Key Observations:**
-1. All memories are isolated by `user_id="demo_user"`
-2. All memories are tagged with `session=75c52f1d`
-3. Agent automatically decides when to search memory (Turns 3, 5, 7)
-4. Agent uses `insert_memory` tool for explicit storage (Turns 1, 2, 4)
-5. Background storage happens after each turn
-
-#### 4. Commit the Log File
-
-This proves you ran the code successfully:
+Commit both files to prove you completed the exercise:
 
 ```bash
-git add agent_output.log
-git commit -m "Add agent demo output log"
+git add agent_output.log agent_output_explanation.md
+git commit -m "Problem 1: Memory agent demo and analysis"
 ```
 
 ### Deliverables (10 Points)
 
-1. **agent_output.log** (5 points) - Committed to git showing successful execution
-2. **Understanding document** (5 points) - Brief write-up (can be added to README or separate file) explaining:
-   - What the 7 turns demonstrate
-   - Examples of each memory type you found in the output
-   - How session IDs are used
-   - When the agent searches memory vs. when it inserts
+**Required files (both must be committed to git):**
+
+1. **agent_output.log** (3 points)
+   - Shows successful execution of demo
+   - Contains all 7 conversation turns
+   - Includes memory statistics at end
+
+2. **agent_output_explanation.md** (7 points)
+   - Written by YOU (not AI-generated) ⚠️
+   - Analyzes the log file with specific examples
+   - Identifies all 4 memory types with quotes from output
+   - Explains tool usage patterns
+   - Demonstrates understanding of single-session behavior
 
 ### Evaluation Criteria
 
-- **Execution** (5 pts): `agent_output.log` shows complete demo run with all 7 turns
-- **Understanding** (5 pts): Document shows clear comprehension of:
-  - Different memory types
-  - Tool usage patterns
-  - Session tracking
-  - Automatic vs. explicit memory storage
+**Execution (3 points):**
+- ✅ `agent_output.log` exists and shows complete demo (all 7 turns)
+- ✅ Log shows initialization with user_id, agent_id, session_id
+- ✅ Log includes memory statistics
+
+**Analysis (7 points):**
+- **Thoroughness** (3 pts): Covers all required topics (session info, memory types, tool usage, recall patterns, single-session concept)
+- **Specificity** (2 pts): Cites specific examples/quotes from output, includes line numbers or turn numbers
+- **Understanding** (2 pts): Explanations show genuine comprehension, written in student's own words (not AI-generated)
+
+**Academic Integrity:**
+- AI-generated submissions = **0 points** for analysis portion
+- We can detect AI writing patterns - don't risk it
+- This is about YOUR learning and understanding
 
 ---
 
