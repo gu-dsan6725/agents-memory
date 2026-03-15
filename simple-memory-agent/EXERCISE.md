@@ -6,8 +6,7 @@ This lab contains exercises to help you understand multi-tenant memory systems a
 
 ## Reference Implementation
 
-Before starting Problem 2, review the streaming stock agent example from the Advanced Agentic Patterns course:
-- **Location**: `~/repos/advanced-agentic-patterns/streaming-stock-agent/`
+Before starting Problem 2, review the `streaming-stock-agent` example from the `advanced-agentic-patterns` lab:
 - **Key concepts**: FastAPI setup, Server-Sent Events (SSE) streaming, Pydantic models, endpoint design
 
 ---
@@ -131,13 +130,11 @@ Convert the CLI-based `agent.py` into a FastAPI application with REST endpoints.
 
 ### Reference Code
 
-**Look at the Advanced Agentic Patterns lab** for FastAPI implementation patterns:
-- Location: `~/repos/advanced-agentic-patterns/streaming-stock-agent/`
-- Study how the streaming stock agent implements:
-  - FastAPI application structure
-  - Server-Sent Events (SSE) for streaming responses
-  - Pydantic request/response models
-  - Endpoint design
+**Look at the `advanced-agentic-patterns` lab** for FastAPI implementation patterns in `streaming-stock-agent`:
+- FastAPI application structure
+- Server-Sent Events (SSE) for streaming responses
+- Pydantic request/response models
+- Endpoint design
 
 ### Requirements
 
@@ -401,7 +398,7 @@ pkill -f "uvicorn agent_api:app"
 
 ### Tips
 
-1. **Study the reference:** The streaming-stock-agent shows good FastAPI patterns
+1. **Study the reference:** The `streaming-stock-agent` from `advanced-agentic-patterns` lab shows good FastAPI patterns
 2. **Use existing code:** Import and use the `Agent` class from `agent.py`
 3. **Keep it simple:** Focus on demonstrating memory isolation and tracking
 4. **Test thoroughly:** Make sure Carol can't see Alice's data
@@ -420,7 +417,7 @@ git commit -m "Problem 2: FastAPI agent with multi-tenant demo"
 
 - Review `architecture.md` for multi-tenant design principles
 - Check `agent_multi_tenant.py` for multi-user patterns
-- Look at `~/repos/advanced-agentic-patterns/streaming-stock-agent/` for FastAPI examples
+- Look at the `advanced-agentic-patterns` lab and `streaming-stock-agent` for FastAPI examples
 - Review Mem0 documentation: https://docs.mem0.ai/
 - Check FastAPI documentation: https://fastapi.tiangolo.com/
 
