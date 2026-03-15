@@ -127,3 +127,237 @@ git commit -m "Problem 1: Memory agent demo and analysis"
 
 ### Objective
 
+Convert the CLI-based `agent.py` into a FastAPI application with REST endpoints. Demonstrate multi-tenant memory isolation and multi-session tracking by showing two users (Alice and Carol) interacting with the agent in different sessions.
+
+### Reference Code
+
+**Look at the Advanced Agentic Patterns lab** for FastAPI implementation patterns:
+- Location: `~/repos/advanced-agentic-patterns/streaming-stock-agent/`
+- Study how the streaming stock agent implements:
+  - FastAPI application structure
+  - Server-Sent Events (SSE) for streaming responses
+  - Pydantic request/response models
+  - Endpoint design
+
+### Requirements
+
+#### 1. Create `agent_api.py`
+
+Convert `agent.py` into a FastAPI application with these endpoints:
+
+##### `/ping` (GET)
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "message": "Memory Agent API is running"
+}
+```
+
+##### `/invocation` (POST)
+Main conversation endpoint. Takes user query and returns agent response.
+
+**Request Parameters:**
+- `user_id` (string, required) - User identifier for memory isolation
+- `run_id` (string, optional) - Session ID (auto-generate if not provided)
+- `query` (string, required) - User's message
+- `metadata` (dict, optional) - Additional context/tags
+
+**Response:**
+Should stream or return the agent's response.
+
+**Implementation Notes:**
+- Use the existing `Agent` class from `agent.py`
+- Create ephemeral Agent instance for each request
+- Pass user_id, run_id to Agent constructor
+- Agent response should be clean (user/AI conversation only)
+
+#### 2. Demonstrate Multi-Tenant Isolation
+
+Create two conversation files showing different users:
+
+##### `alice_output.txt`
+
+**Session 1 (5 utterances in SAME session):**
+
+Show Alice introducing herself and asking questions. Example:
+
+```
+User: Hi, I'm Alice. I'm a software engineer.
+Agent: Hello Alice! Nice to meet you...
+
+User: I prefer Python for development.
+Agent: Got it! I'll remember that you prefer Python...
+
+User: What programming languages do I like?
+Agent: You prefer Python for development...
+
+User: I'm working on a FastAPI project.
+Agent: That's great! FastAPI is excellent for Python...
+
+User: What have we discussed so far?
+Agent: We've talked about your role as a software engineer, your preference for Python, and your FastAPI project...
+```
+
+**Session 2 (different run_id, same user_id):**
+
+Start a NEW session and ask follow-up questions to demonstrate cross-session memory recall:
+
+```
+User: What do you remember about me?
+Agent: You're Alice, a software engineer who prefers Python...
+
+User: What project am I working on?
+Agent: You mentioned working on a FastAPI project...
+```
+
+##### `carol_output.txt`
+
+**Session 1 (Carol's separate session):**
+
+Carol asks similar questions to Alice to demonstrate user isolation:
+
+```
+User: Hi, I'm Carol. I'm a data scientist.
+Agent: Hello Carol! Nice to meet you...
+
+User: What programming languages do I like?
+Agent: I don't have any information about your programming language preferences yet...
+
+User: Do you know what Alice prefers?
+Agent: I don't have information about other users...
+```
+
+**Key Demonstration:**
+- Carol asks "What programming languages do I like?"
+- Agent should respond "I don't know" or "I don't have information yet"
+- **NOT** use Alice's memory (proves user isolation)
+
+#### 3. Output Format
+
+**Important:** The output files should contain **ONLY** user and agent conversation:
+- ✅ Show: `User: ...` and `Agent: ...`
+- ❌ Don't show: Log messages, tool calls, debug info, timestamps
+
+**Clean format example:**
+```
+User: Hi, I'm Alice.
+Agent: Hello Alice! Nice to meet you. How can I help you today?
+
+User: I prefer Python.
+Agent: Got it! I'll remember that you prefer Python.
+```
+
+### Deliverables
+
+**Required files to commit:**
+
+1. **agent_api.py** - FastAPI application with `/ping` and `/invocation` endpoints
+2. **alice_output.txt** - Alice's conversations (Session 1: 5 utterances, Session 2: follow-up questions)
+3. **carol_output.txt** - Carol's conversation demonstrating user isolation
+4. **test_api.sh** (optional but recommended) - Script to test your endpoints
+
+### Testing Your Implementation
+
+**Start the server:**
+```bash
+uv run uvicorn agent_api:app --reload --host 127.0.0.1 --port 8000
+```
+
+**Test /ping:**
+```bash
+curl http://127.0.0.1:8000/ping
+```
+
+**Test /invocation with Alice:**
+```bash
+curl -X POST http://127.0.0.1:8000/invocation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "alice",
+    "run_id": "session-1",
+    "query": "Hi, I'\''m Alice. I'\''m a software engineer."
+  }'
+```
+
+**Test /invocation with Carol (same question as Alice):**
+```bash
+curl -X POST http://127.0.0.1:8000/invocation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "carol",
+    "run_id": "session-1",
+    "query": "What programming languages do I like?"
+  }'
+```
+
+Expected: Carol should get "I don't know" response.
+
+### What We're Testing
+
+1. **Multi-Tenant Isolation:**
+   - Alice's memories don't leak to Carol
+   - Each user has separate memory space
+   - Carol asking Alice's questions gets different answers
+
+2. **Multi-Session Tracking:**
+   - Alice Session 2 can recall information from Session 1
+   - run_id properly tracks different conversation sessions
+   - Cross-session memory retrieval works
+
+3. **Clean Output:**
+   - Output files show only user/agent conversation
+   - No logs, tool calls, or debug information
+   - Easy to read and verify behavior
+
+### Evaluation Criteria
+
+**Implementation (40%):**
+- FastAPI application runs correctly
+- `/ping` and `/invocation` endpoints work
+- Proper Pydantic models for requests
+- Correct parameter handling (user_id, run_id, query, metadata)
+
+**Multi-Tenant Isolation (30%):**
+- Alice and Carol have separate memory spaces
+- Carol can't access Alice's preferences/information
+- Demonstrates "I don't know" response for Carol
+
+**Multi-Session Tracking (20%):**
+- Alice's Session 2 recalls Session 1 information
+- run_id properly isolates sessions
+- Cross-session memory retrieval demonstrated
+
+**Output Quality (10%):**
+- Clean conversation format (no logs/debug info)
+- All required utterances present
+- Clear demonstration of memory behavior
+
+### Tips
+
+1. **Study the reference:** The streaming-stock-agent shows good FastAPI patterns
+2. **Use existing code:** Import and use the `Agent` class from `agent.py`
+3. **Keep it simple:** Focus on demonstrating memory isolation and tracking
+4. **Test thoroughly:** Make sure Carol can't see Alice's data
+5. **Clean output:** Strip logs before saving to output files
+
+### Submission
+
+```bash
+git add agent_api.py alice_output.txt carol_output.txt
+git commit -m "Problem 2: FastAPI agent with multi-tenant demo"
+```
+
+---
+
+## Getting Help
+
+- Review `architecture.md` for multi-tenant design principles
+- Check `agent_multi_tenant.py` for multi-user patterns
+- Look at `~/repos/advanced-agentic-patterns/streaming-stock-agent/` for FastAPI examples
+- Review Mem0 documentation: https://docs.mem0.ai/
+- Check FastAPI documentation: https://fastapi.tiangolo.com/
+
+Good luck!
