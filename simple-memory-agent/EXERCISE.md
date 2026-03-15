@@ -261,15 +261,70 @@ Agent: Got it! I'll remember that you prefer Python.
 
 ### Testing Your Implementation
 
-**Start the server:**
+#### Step 1: Kill Any Previous Running Instances
+
+Before starting a fresh server, kill any existing instances:
+
 ```bash
+# Kill any running agent_api servers
+pkill -f "uvicorn agent_api:app" || true
+```
+
+#### Step 2: Start the Server
+
+```bash
+# Start the FastAPI server on port 9090
 uv run uvicorn agent_api:app --reload --host 127.0.0.1 --port 9090
 ```
 
-**Test /ping:**
+The server will start and display:
+```
+INFO:     Uvicorn running on http://127.0.0.1:9090 (Press CTRL+C to quit)
+```
+
+#### Step 3: Test Health Check
+
+In a new terminal, test the /ping endpoint:
+
 ```bash
 curl http://127.0.0.1:9090/ping
 ```
+
+Expected response:
+```json
+{"status":"ok","message":"Memory Agent API is running"}
+```
+
+#### Step 4: Generate Alice's Conversations
+
+Run Alice's session scripts to generate her output file:
+
+```bash
+# Session 1: 5 utterances
+./alice_session1.sh
+
+# Session 2: Cross-session memory test
+./alice_session2.sh
+
+# View Alice's complete output
+cat alice_output.txt
+```
+
+#### Step 5: Generate Carol's Conversations
+
+Run Carol's session script to demonstrate user isolation:
+
+```bash
+# Session 1: User isolation test
+./carol_session1.sh
+
+# View Carol's output
+cat carol_output.txt
+```
+
+#### Manual Testing (Optional)
+
+You can also test individual requests manually:
 
 **Test /invocation with Alice:**
 ```bash
@@ -294,6 +349,15 @@ curl -X POST http://127.0.0.1:9090/invocation \
 ```
 
 Expected: Carol should get "I don't know" response.
+
+#### Step 6: Stop the Server
+
+When done testing:
+
+```bash
+# Press CTRL+C in the server terminal, or:
+pkill -f "uvicorn agent_api:app"
+```
 
 ### What We're Testing
 
