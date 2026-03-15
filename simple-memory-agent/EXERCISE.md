@@ -72,15 +72,6 @@ You MUST write your explanation document **yourself** - no AI use please. This i
 4. **Memory Recall** - Which turns trigger memory search? How do you know?
 5. **Single Session** - Explain how all 7 turns happen in ONE session and why that matters
 
-**What we're looking for:**
-- Evidence you READ the log file (specific line numbers, quotes from output)
-- YOUR understanding in YOUR words (not AI-generated prose)
-- Specific examples from the output supporting your analysis
-- Clear explanations of when/why memory operations occur
-- Understanding of single-session vs. multi-session concepts
-
-**Format:** Use markdown with clear headers. Length: 1-2 pages. Be specific and cite examples from your log.
-
 **Hints:**
 - Look for patterns in which turns show "Tool #X: insert_memory"
 - Compare turns 3, 5, 7 - what do they have in common?
