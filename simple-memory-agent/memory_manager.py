@@ -2,9 +2,9 @@
 Memory management abstraction layer for agent memory operations.
 
 This module provides a backend-agnostic interface for memory management,
-currently implemented with Mem0 but designed to be swappable with other
-solutions (langmem, custom implementations, etc.). The abstraction allows
-the agent to remain independent of the specific memory backend.
+currently implemented with Mem0 cloud platform but designed to be swappable
+with other solutions (langmem, custom implementations, etc.). The abstraction
+allows the agent to remain independent of the specific memory backend.
 
 Memory Types:
 - Semantic: Facts, knowledge, and information extracted from conversations
@@ -17,36 +17,42 @@ Usage Example:
 
     # Initialize memory manager (synchronous)
     manager = MemoryManager(
-        user_id="user_123",
-        model="groq/llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY")
+        api_key=os.getenv("MEM0_API_KEY")
     )
 
     # All memory operations are async and must be awaited
     async def example_usage():
+        user_id = "user_123"
+
         # Insert memory directly
         result = await manager.insert(
+            user_id=user_id,
             content="User prefers Python for data processing",
             metadata={"type": "preference", "category": "programming"}
         )
 
         # Search for memories
-        memories = await manager.search(query="programming preferences", limit=5)
+        memories = await manager.search(
+            user_id=user_id,
+            query="programming preferences",
+            limit=5
+        )
 
         # Add conversation turn (episodic memory)
         await manager.add_conversation(
+            user_id=user_id,
             user_message="What's my favorite language?",
             assistant_message="You prefer Python for data processing."
         )
 
         # Export all memories
-        export_data = await manager.export(format="json")
+        export_data = await manager.export(user_id=user_id, format="json")
 
         # Get statistics
-        stats = await manager.get_stats()
+        stats = await manager.get_stats(user_id=user_id)
 
         # Clear all memories (use with caution!)
-        await manager.clear()
+        await manager.clear(user_id=user_id)
 
     # Run async operations
     asyncio.run(example_usage())
@@ -57,14 +63,14 @@ Integration with Agent:
     must be awaited:
 
     # In agent.py __init__:
-    self.memory_manager = MemoryManager(user_id, model, api_key)
+    self.memory_manager = MemoryManager(api_key)
 
     # Replace direct memory.add() calls (use await):
-    await self.memory_manager.add_conversation(user_input, response_text)
+    await self.memory_manager.add_conversation(user_id, user_input, response_text)
 
     # Use in tools (use await):
-    search_results = await self.memory_manager.search(query, limit)
-    insert_result = await self.memory_manager.insert(content, metadata)
+    search_results = await self.memory_manager.search(user_id, query, limit)
+    insert_result = await self.memory_manager.insert(user_id, content, metadata=metadata)
 """
 
 import json
@@ -77,128 +83,11 @@ from typing import (
     Optional,
 )
 
-from mem0 import AsyncMemory
+from mem0 import MemoryClient
 
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Suppress Mem0 internal error logs for known non-fatal PointStruct validation errors
-# See KNOWN_ISSUES.md for details about Mem0 1.x bug with event='NONE' updates
-# GitHub issues: #3640, #3780 | PR: #3653 (pending merge)
-logging.getLogger("mem0").setLevel(logging.CRITICAL)
-logging.getLogger("mem0.memory").setLevel(logging.CRITICAL)
-logging.getLogger("mem0.memory.main").setLevel(logging.CRITICAL)
-
-
-# Monkey patch Mem0's LiteLLM to fix Anthropic compatibility issue
-# Anthropic models don't allow both temperature and top_p to be set
-def _patch_mem0_litellm():
-    """
-    Patch Mem0's LiteLLM implementation to remove top_p for Anthropic models.
-
-    This fixes the issue where Mem0 sends both temperature and top_p to Anthropic,
-    which rejects requests with both parameters set.
-    """
-    try:
-        from mem0.llms.litellm import LiteLLM
-        import litellm
-
-        # Store original method
-        original_generate = LiteLLM.generate_response
-
-        def patched_generate_response(self, messages, response_format=None, tools=None, tool_choice="auto"):
-            """Patched version that removes top_p for Anthropic models."""
-            if not litellm.supports_function_calling(self.config.model):
-                raise ValueError(f"Model '{self.config.model}' in litellm does not support function calling.")
-
-            params = {
-                "model": self.config.model,
-                "messages": messages,
-                "temperature": self.config.temperature,
-                "max_tokens": self.config.max_tokens,
-            }
-
-            # Only add top_p for non-Anthropic models
-            model_name = self.config.model.lower()
-            if "claude" not in model_name and "anthropic" not in model_name:
-                params["top_p"] = self.config.top_p
-
-            if response_format:
-                params["response_format"] = response_format
-            if tools:
-                params["tools"] = tools
-                params["tool_choice"] = tool_choice
-
-            response = litellm.completion(**params)
-            return self._parse_response(response, tools)
-
-        # Replace the method
-        LiteLLM.generate_response = patched_generate_response
-        print("✓ Successfully patched Mem0 LiteLLM for Anthropic compatibility")
-        logger.info("Successfully patched Mem0 LiteLLM for Anthropic compatibility")
-
-    except Exception as e:
-        print(f"✗ Could not patch Mem0 LiteLLM: {e}")
-        logger.warning(f"Could not patch Mem0 LiteLLM: {e}")
-        import traceback
-        traceback.print_exc()
-
-
-# Apply the patch immediately
-_patch_mem0_litellm()
-
-# Constants
-EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
-QDRANT_PATH: str = "./qdrant_data"
-COLLECTION_NAME: str = "agent_memories"
-EMBEDDING_DIMS: int = 384
-
-
-def _initialize_mem0_config(
-    model: str,
-    api_key: str
-) -> Dict[str, Any]:
-    """Initialize Mem0 configuration with Qdrant and HuggingFace embeddings.
-
-    Args:
-        model: LLM model identifier for Mem0 operations
-        api_key: API key for the LLM provider
-
-    Returns:
-        Configuration dictionary for Mem0 initialization
-    """
-    config = {
-        "vector_store": {
-            "provider": "qdrant",
-            "config": {
-                "path": QDRANT_PATH,
-                "collection_name": COLLECTION_NAME,
-                "embedding_model_dims": EMBEDDING_DIMS,
-            }
-        },
-        "embedder": {
-            "provider": "huggingface",
-            "config": {
-                "model": EMBEDDING_MODEL,
-            }
-        },
-        "llm": {
-            "provider": "litellm",
-            "config": {
-                "model": model,
-                "api_key": api_key,
-                "temperature": 0.7,
-                # Note: Anthropic models don't allow both temperature and top_p
-                # So we only set temperature here
-            }
-        }
-    }
-
-    logger.info(f"Initialized Mem0 config with Qdrant at {QDRANT_PATH}")
-    logger.debug(f"Config:\n{json.dumps(config, indent=2, default=str)}")
-
-    return config
 
 
 class MemoryManager:
@@ -220,23 +109,21 @@ class MemoryManager:
 
     Attributes:
         user_id: User identifier for memory association
-        memory: Backend memory instance (currently Mem0 AsyncMemory)
+        memory: Backend memory instance (currently Mem0 cloud platform MemoryClient)
     """
 
     def __init__(
         self,
-        model: str,
         api_key: str
     ):
-        """Initialize the memory manager with backend configuration.
+        """Initialize the memory manager with Mem0 cloud platform.
 
         This creates a SINGLE multi-tenant MemoryManager that services all users
         and sessions. User identification and session context are passed as parameters
         to each method call, not stored as instance variables.
 
         Args:
-            model: LLM model identifier for memory operations
-            api_key: API key for the LLM provider
+            api_key: Mem0 API key for cloud platform access
 
         Raises:
             ValueError: If api_key is missing
@@ -247,30 +134,17 @@ class MemoryManager:
             - user_id, agent_id, run_id passed as method parameters
             - Each user's memories are isolated by user_id
             - Sessions organized by run_id for better context tracking
-            - Efficient resource usage (single backend connection)
+            - Efficient resource usage (single cloud connection)
         """
         if not api_key:
-            raise ValueError("api_key is required for memory operations")
+            raise ValueError("api_key is required for Mem0 cloud platform")
 
-        logger.info("Initializing multi-tenant MemoryManager (services all users/sessions)")
+        logger.info("Initializing multi-tenant MemoryManager with Mem0 cloud platform")
 
-        # Initialize Mem0 async backend
-        config = _initialize_mem0_config(model, api_key)
+        # Initialize Mem0 cloud client (synchronous initialization)
+        self.memory = MemoryClient(api_key=api_key)
 
-        # AsyncMemory.from_config is async, so we need to run it synchronously
-        import asyncio
-        try:
-            loop = asyncio.get_running_loop()
-            # If there's already a loop, run in thread pool
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(asyncio.run, AsyncMemory.from_config(config))
-                self.memory = future.result()
-        except RuntimeError:
-            # No loop running, safe to use asyncio.run()
-            self.memory = asyncio.run(AsyncMemory.from_config(config))
-
-        logger.info("Async memory backend initialized successfully")
+        logger.info("Mem0 cloud client initialized successfully")
 
 
     async def insert(
@@ -326,11 +200,10 @@ class MemoryManager:
             if run_id:
                 full_metadata["run_id"] = run_id
 
-            # Store in Mem0 async backend with full context
-            await self.memory.add(
-                messages=[{"role": "user", "content": content}],
+            # Store in Mem0 cloud platform with user_id and run_id as first-class parameters
+            self.memory.add(
+                content,
                 user_id=user_id,
-                agent_id=agent_id,
                 run_id=run_id,
                 metadata=full_metadata
             )
@@ -413,26 +286,42 @@ class MemoryManager:
                 f"(limit={limit}, searching across ALL sessions)"
             )
 
-            # Build search parameters
-            search_params = {
-                "query": query,
-                "user_id": user_id,
-                "limit": limit
-            }
+            # Get all run_ids for this user for cross-session recall
+            # Mem0 stores memories under run_id, so we need to query all runs
+            try:
+                users_data = self.memory.users()
+                # Filter for runs (type='run') that belong to this user
+                # Runs are typically named like: user_id-session-N
+                user_runs = [u['name'] for u in users_data.get('results', [])
+                           if u.get('type') == 'run' and u['name'].startswith(user_id + '-')]
+                logger.debug(f"Found {len(user_runs)} runs for user={user_id}: {user_runs}")
+            except Exception as e:
+                logger.warning(f"Could not get user runs, falling back to user_id filter: {e}")
+                user_runs = None
 
-            # NOTE: We do NOT pass run_id to search!
-            # We want cross-session memory recall - the agent should remember
-            # information from ALL previous sessions, not just the current one.
-            # User isolation is handled by user_id alone.
+            # Build filters for Mem0 cloud platform
+            # Use OR logic across all user's run_ids for cross-session recall
+            if user_runs and len(user_runs) > 0:
+                filters = {
+                    'OR': [{'run_id': run} for run in user_runs]
+                }
+            else:
+                # Fallback to user_id filter (may not work with current Mem0 API)
+                filters = {"user_id": user_id}
 
-            if agent_id:
-                search_params["agent_id"] = agent_id
-            # run_id is intentionally NOT included - we want cross-session recall
-            if metadata_filters:
-                search_params["metadata_filters"] = metadata_filters
+            if agent_id and not user_runs:
+                filters["agent_id"] = agent_id
 
-            # Search using Mem0 async backend with filters
-            results = await self.memory.search(**search_params)
+            # Combine with any additional metadata filters
+            if metadata_filters and not user_runs:
+                filters.update(metadata_filters)
+
+            # Search using Mem0 cloud platform with filters
+            results = self.memory.search(
+                query=query,
+                filters=filters,
+                limit=limit
+            )
 
             # DEBUG: Log raw results from Mem0
             logger.debug(f"Raw Mem0 search results type: {type(results)}")
@@ -508,16 +397,15 @@ class MemoryManager:
         try:
             logger.info(f"Exporting memories for user={user_id} in {format} format")
 
-            # Get all memories from async backend
-            all_memories = await self.memory.get_all(user_id=user_id)
+            # Get all memories from Mem0 cloud platform
+            all_memories = self.memory.get_all(filters={"user_id": user_id})
 
             export_data = {
                 "user_id": user_id,
                 "format": format,
                 "memory_count": len(all_memories),
                 "memories": all_memories,
-                "backend": "mem0",
-                "collection": COLLECTION_NAME
+                "backend": "mem0_cloud"
             }
 
             logger.info(f"Exported {len(all_memories)} memories for user={user_id}")
@@ -561,26 +449,45 @@ class MemoryManager:
         try:
             logger.info(f"Retrieving all memories for user={user_id}")
 
-            # Get all memories from async backend for specific user
-            memories = await self.memory.get_all(user_id=user_id)
+            # Get all run_ids for this user for cross-session recall
+            try:
+                users_data = self.memory.users()
+                user_runs = [u['name'] for u in users_data.get('results', [])
+                           if u.get('type') == 'run' and u['name'].startswith(user_id + '-')]
+                logger.debug(f"Found {len(user_runs)} runs for user={user_id}: {user_runs}")
+            except Exception as e:
+                logger.warning(f"Could not get user runs: {e}")
+                user_runs = []
 
-            # Ensure memories is a list (some backends might return dict-like objects)
-            if isinstance(memories, dict):
-                # If it's a dict, try to extract the memories list
-                memories = memories.get("results", memories.get("memories", []))
-
-            # Convert to list if needed
-            if not isinstance(memories, list):
-                memories = list(memories) if hasattr(memories, '__iter__') else []
+            # Aggregate memories from all runs for this user
+            all_memories = []
+            if user_runs:
+                for run_id in user_runs:
+                    try:
+                        result = self.memory.get_all(filters={"run_id": run_id})
+                        if isinstance(result, dict):
+                            memories = result.get("results", result.get("memories", []))
+                        else:
+                            memories = result if isinstance(result, list) else []
+                        all_memories.extend(memories)
+                    except Exception as e:
+                        logger.warning(f"Error getting memories for run {run_id}: {e}")
+            else:
+                # Fallback: try user_id filter (may not work but worth trying)
+                result = self.memory.get_all(filters={"user_id": user_id})
+                if isinstance(result, dict):
+                    all_memories = result.get("results", result.get("memories", []))
+                else:
+                    all_memories = result if isinstance(result, list) else []
 
             if limit and limit > 0:
-                memories = memories[:limit]
+                all_memories = all_memories[:limit]
                 logger.info(f"Limited results to {limit} memories for user={user_id}")
 
-            logger.info(f"Retrieved {len(memories)} total memories for user={user_id}")
-            logger.debug(f"Memories:\n{json.dumps(memories, indent=2, default=str)}")
+            logger.info(f"Retrieved {len(all_memories)} total memories for user={user_id}")
+            logger.debug(f"Memories:\n{json.dumps(all_memories, indent=2, default=str)}")
 
-            return memories
+            return all_memories
 
         except Exception as e:
             logger.error(f"Error retrieving all memories for user={user_id}: {e}")
@@ -607,17 +514,17 @@ class MemoryManager:
         try:
             logger.warning(f"Clearing all memories for user: {user_id}")
 
-            # Get all memories from async backend for specific user
-            all_memories = await self.memory.get_all(user_id=user_id)
+            # Get all memories from Mem0 cloud platform for specific user
+            all_memories = self.memory.get_all(filters={"user_id": user_id})
             memory_count = len(all_memories)
 
-            # Delete each memory individually using async backend
+            # Delete each memory individually using Mem0 cloud platform
             for mem in all_memories:
                 # Handle both dict and string formats
                 if isinstance(mem, dict):
                     memory_id = mem.get("id")
                     if memory_id:
-                        await self.memory.delete(memory_id=memory_id)
+                        self.memory.delete(memory_id=memory_id)
                 elif isinstance(mem, str):
                     # If mem is a string, it might be the memory ID itself
                     logger.debug(f"Skipping string memory entry: {mem[:50]}...")
@@ -653,10 +560,9 @@ class MemoryManager:
             metadata: Optional metadata for the conversation turn
         """
         try:
-            messages = [
-                {"role": "user", "content": user_message},
-                {"role": "assistant", "content": assistant_message}
-            ]
+            # Format conversation as string for Mem0 cloud platform
+            # (Mem0 cloud works better with string format than message list)
+            conversation_text = f"User: {user_message}\nAssistant: {assistant_message}"
 
             # Enhance metadata with session context
             full_metadata = metadata or {}
@@ -664,16 +570,19 @@ class MemoryManager:
                 "conversation_turn": True,
                 "type": "episodic"
             })
+            if agent_id:
+                full_metadata["agent_id"] = agent_id
+            if run_id:
+                full_metadata["run_id"] = run_id
 
             logger.debug(
                 f"Adding conversation for user={user_id}, agent={agent_id}, session={run_id} "
                 f"(user msg length: {len(user_message)})"
             )
 
-            await self.memory.add(
-                messages=messages,
+            self.memory.add(
+                conversation_text,
                 user_id=user_id,
-                agent_id=agent_id,
                 run_id=run_id,
                 metadata=full_metadata
             )
@@ -704,13 +613,12 @@ class MemoryManager:
             raise ValueError("user_id cannot be empty")
 
         try:
-            all_memories = await self.memory.get_all(user_id=user_id)
+            all_memories = self.memory.get_all(filters={"user_id": user_id})
 
             stats = {
                 "user_id": user_id,
                 "total_memories": len(all_memories),
-                "backend": "mem0",
-                "collection": COLLECTION_NAME
+                "backend": "mem0_cloud"
             }
 
             logger.info(f"Memory stats for user={user_id}: {stats}")

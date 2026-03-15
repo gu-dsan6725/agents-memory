@@ -1,54 +1,80 @@
 === Alice Session 1 ===
 
 User: Hi, I'm Alice. I'm a software engineer.
-Agent: Is there anything I can help you with today? Whether it's coding questions, project advice, tech topics, or anything else—I'm here to help!
+Agent: Great to see you again, Alice! 👋 I remember you from our previous conversations. Here's what I know about you:
+
+- You're a software engineer
+- You prefer **Python** for development
+- You're working on a **FastAPI project**
+
+It's good to have this context! Is there anything you'd like to work on today? Whether it's help with your FastAPI project, Python development in general, or anything else, I'm here to help!
 
 User: I prefer Python for development.
-Agent: That's a great choice! Python is incredibly versatile and powerful—great for everything from web development and data science to automation and machine learning. Since you prefer Python, if you ever need help with Python-related questions, debugging, best practices, or project recommendations, feel free to ask. I'm happy to discuss it with you!
+Agent: Got it! I can see from my memory that you already mentioned this preference before. Python is a great choice for software development — it's versatile, readable, and works well for so many different applications.
+
+Since you prefer Python and you're working on a FastAPI project, you've got a solid tech stack going. FastAPI is excellent for building APIs with Python.
+
+Is there something specific you'd like to discuss or work on today? Whether it's:
+- Your FastAPI project
+- Python best practices or patterns
+- Help with debugging or optimization
+- Learning something new in Python
+- Or anything else
+
+I'm here to help! 😊
 
 User: What programming languages do I like?
-Agent: Based on what you've shared with me, you prefer **Python** for development. That's your main preference so far!
+Agent: Based on what I know from our previous conversations, you prefer **Python** for development.
 
-If you work with or enjoy other languages as well, I'd be happy to hear about them. Do you have other favorites or languages you work with regularly?
+That's the primary language preference I have recorded for you. Do you work with other programming languages as well, or is Python your main go-to language?
 
 User: I'm working on a FastAPI project.
-Agent: How can I help with your FastAPI project? Whether you need assistance with:
-- API endpoint design
-- Database integration (SQLAlchemy, etc.)
-- Authentication and security
-- Error handling and validation
-- Async/await patterns
-- Deployment
-- Testing
-- Or anything else related to FastAPI
+Agent: Yes, I remember that! You're working on a FastAPI project. That's a great choice since FastAPI works perfectly with your preference for Python — it's a modern, fast web framework for building APIs with Python.
 
-I'm here to help! What are you working on specifically?
+How's the project going? Is there anything specific you'd like help with? I can assist with things like:
+
+- **Architecture and design** of your API
+- **Endpoint implementation** and best practices
+- **Data validation** and request/response modeling (Pydantic)
+- **Authentication and authorization**
+- **Database integration**
+- **Testing and debugging**
+- **Deployment considerations**
+- Or any other aspect of your FastAPI project
+
+What would be most helpful for you right now?
 
 User: What have we discussed so far?
-Agent: Here's what we've discussed so far:
+Agent: Based on my memory, here's what we've discussed so far:
 
-1. **You're a software engineer** - that's your profession
-2. **You prefer Python for development** - it's your language of choice
-3. **You're working on a FastAPI project** - a modern Python web framework for building APIs
+1. **About you**: You introduced yourself as Alice, a software engineer
+2. **Your technology preferences**: You prefer **Python** for development
+3. **Your current project**: You're working on a **FastAPI project**
+4. **In this conversation**: You've confirmed your Python preference and mentioned your FastAPI work
 
-That's the key information you've shared with me in our conversation. Is there anything else you'd like to tell me or discuss?
+That's the main context I have from our previous conversations. The details are fairly high-level at this point — I know *what* you're working on, but we haven't gone into depth about the specifics of your FastAPI project yet.
+
+Is there something particular about your project you'd like to dive into? Or would you like to tell me more details so I can better assist you?
 
 
 === Alice Session 2 (New Session) ===
 
 User: What do you remember about me?
-Agent: I don't have any memories of previous conversations with you yet. This appears to be the start of our conversation together, or if we have interacted before, I don't have relevant information stored.
+Agent: Great! Here's what I remember about you:
 
-However, I do have the ability to remember things about you going forward! Here's how it works:
+1. **You're a software engineer** - that's your professional background
+2. **You're working on a FastAPI project** - this is an active project you're involved with
+3. **You prefer Python for development** - Python is your language of choice
 
-- **Automatic storage**: All conversations are automatically stored, so I'll have context about what we discuss
-- **Explicit memory**: If you want to make sure I remember something important, you can tell me to "remember" it, and I can explicitly store that information
-- **Search capability**: If you ask me about something from a past conversation, I can search my memory to find that information
-
-Is there anything you'd like to tell me about yourself? Or if you've spoken with me before and think I should remember something specific, feel free to remind me!
+These details were stored from our previous conversation(s). Is there anything you'd like me to add or update about this information, or would you like to tell me more about yourself?
 
 User: What project am I working on?
-Agent: The search didn't return any specific information about a project you're working on. It seems we haven't discussed this yet, or there's no stored memory about it.
+Agent: Based on my memory, you're working on a **FastAPI project**. That's all the detail I have stored about it currently.
 
-Could you tell me about your project? I'd be happy to help, and I can remember the details for future conversations!
+Would you like to tell me more about this project? I'd be happy to help if you'd like to discuss:
+- What the FastAPI project is building or its purpose
+- Specific challenges or features you're working on
+- Any questions or help you need with it
+
+Feel free to share more details, and I can store them for future reference!
 

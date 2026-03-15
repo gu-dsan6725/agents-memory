@@ -1,44 +1,100 @@
 # Agent Memory Patterns: Course Labs
 
-This repository contains two hands-on lab assignments that teach fundamental and advanced memory management patterns for AI agents, from basic conversation history to sophisticated memory systems with summarization and semantic search.
+This repository contains a hands-on lab that teaches production-ready memory management for AI agents using modern open-source tools. Learn how to build agents with semantic memory capabilities using Mem0, Strands SDK, and Groq.
 
-## Course Structure
+## Overview
 
-### Problem 1: Simple Memory Agent (50 points)
+Modern AI agents need memory to maintain context across conversations and provide personalized experiences. This lab teaches you how to use production-ready memory frameworks rather than building from scratch, focusing on understanding different memory approaches and when to use them.
+
+**What You'll Learn**:
+- Semantic memory with Mem0
+- Tool-based agent patterns with Strands SDK
+- Automatic vs explicit memory storage
+- When to use different memory solutions (Mem0, langmem, AWS Bedrock)
+- Production-ready memory architectures
+
+**Time**: 2-3 hours | **Points**: 100 | **Difficulty**: Intermediate
+
+## Memory Solutions Landscape
+
+When building AI agents, you have multiple options for memory management:
+
+### 1. Open Source Solutions
+
+**Mem0** (Used in this lab)
+- Easy to use, production-ready
+- Local or cloud deployment
+- Multiple vector store backends
+- Semantic search built-in
+- **Best for**: Most use cases, learning, production
+
+**langmem**
+- Pure open source
+- Self-hosted, full control
+- Requires infrastructure setup
+- **Best for**: Custom requirements, full control needed
+
+### 2. Cloud Provider Solutions
+
+**AWS Bedrock AgentCore Memory**
+- Fully managed by AWS
+- Enterprise features
+- Integration with AWS services
+- **Best for**: Enterprise, existing AWS infrastructure
+
+### Why This Lab Uses Mem0
+
+This lab uses Mem0 because it:
+- Works entirely locally (no cloud account needed)
+- Provides production-ready patterns
+- Is free to use
+- Offers multiple backend options
+- Has excellent documentation
+- Bridges learning and production deployment
+
+## Lab Structure
+
+### Simple Memory Agent (100 points)
 
 **Directory**: [simple-memory-agent/](simple-memory-agent/) | **Exercise**: [EXERCISE.md](simple-memory-agent/EXERCISE.md)
 
-Build a conversational agent with basic memory management using a circular buffer pattern. This lab demonstrates how to maintain conversation context across multiple turns, implement memory constraints with sliding windows, and manage token budgets effectively. You'll implement a simple in-memory circular buffer that stores recent conversation history, automatically evicts old messages when capacity is reached, and formats conversation history for LLM context. The system uses Amazon Bedrock's Claude for conversation and demonstrates the fundamentals of stateful agent design. This is a solved example that provides the foundation for understanding agent memory patterns.
+Build a memory-enabled agent using Mem0, Strands SDK, and Groq. This lab demonstrates production-ready memory patterns with automatic conversation storage and semantic search capabilities.
+
+**Architecture**:
+```
+User Input → Mem0 (automatic storage) → Agent (Strands SDK)
+                                          ├── Tool: search_memory()
+                                          └── Tool: insert_memory()
+Agent Response → Mem0 (automatic storage) → User
+```
 
 **Key Learning Objectives**:
-- Understanding conversation state management
-- Implementing circular buffer data structures
-- Managing token budgets and context windows
-- Formatting conversation history for LLMs
-- Basic memory eviction strategies
-- Building stateful conversational agents
+- Using Mem0 for semantic memory management
+- Building tool-based agents with Strands SDK
+- Understanding automatic vs explicit memory storage
+- Implementing memory search with semantic similarity
+- Designing agents that decide when to recall information
+- Production-ready memory architectures
 
-### Problem 2: Conversational Memory Agent (100 points)
+**Technologies**:
+- **Mem0**: Semantic memory framework
+- **Strands SDK**: Agent orchestration with tool support
+- **Groq**: Free, fast LLM inference (no credit card required)
+- **Qdrant**: Local vector database
+- **HuggingFace**: Free embeddings (MiniLM)
 
-**Directory**: [conversational-memory-agent/](conversational-memory-agent/) | **Exercise**: [EXERCISE.md](conversational-memory-agent/EXERCISE.md)
+### Optional: Conversational Memory Agent
 
-Implement an advanced memory system that goes beyond simple conversation history to include memory summarization, semantic search, and multi-tier memory architecture. This lab teaches how to build a hierarchical memory system with short-term (conversation buffer), medium-term (summarized conversations), and long-term (semantic vector store) memory tiers. You'll implement automatic conversation summarization when buffers fill up, use embeddings for semantic similarity search across conversation history, and create memory retrieval strategies that combine recency and relevance. The architecture demonstrates production-ready patterns for agents that need to maintain context over extended interactions while managing token costs effectively.
+**Directory**: [conversational-memory-agent/](conversational-memory-agent/)
 
-**Key Learning Objectives**:
-- Multi-tier memory architecture design
-- Conversation summarization with LLMs
-- Semantic memory with embeddings and vector search
-- Memory retrieval strategies (recency + relevance)
-- Long-term context management
-- Token cost optimization with summarization
-- When to use different memory patterns
+This directory contains legacy code demonstrating manual memory implementation patterns. It's optional and provided for educational comparison. The main lab focuses on using production tools (Mem0) rather than building memory systems from scratch.
 
 ## Prerequisites
 
 - Python 3.11+
-- API keys:
-  - **Anthropic Claude** (Required): https://console.anthropic.com/
-  - Alternative: **AWS Account with Amazon Bedrock access** (Claude models enabled)
+- Groq API key (free, no credit card): https://console.groq.com/
+
+That's it! No cloud accounts or paid services required.
 
 ## Quick Start
 
@@ -49,44 +105,46 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 ```
 
-### 2. Install Dependencies
+### 2. Get Free Groq API Key
+
+1. Visit https://console.groq.com/
+2. Sign up (no credit card needed)
+3. Create API key
+4. Copy key for next step
+
+### 3. Install Dependencies
 
 ```bash
 cd agents-memory
 uv sync
 ```
 
-### 3. Configure API Keys
-
-Each lab has its own `.env.example` file:
+### 4. Configure API Key
 
 ```bash
-# For Problem 1
 cd simple-memory-agent
 cp .env.example .env
-# Edit .env and add ANTHROPIC_API_KEY or AWS credentials
-
-# For Problem 2
-cd ../conversational-memory-agent
-cp .env.example .env
-# Edit .env and add ANTHROPIC_API_KEY or AWS credentials
+# Edit .env and add your GROQ_API_KEY
 ```
 
-### 4. Work on Labs
+### 5. Run the Demo
 
-**Problem 1 (Solved Example)**:
 ```bash
-cd simple-memory-agent
-uv run python agent.py
-# Review the implementation and run the example
-```
-
-**Problem 2 (Student Exercise)**:
-```bash
-cd conversational-memory-agent
-# Follow instructions in EXERCISE.md
 uv run python agent.py
 ```
+
+You should see the agent demonstrate memory capabilities:
+- Remembering your name across turns
+- Searching memory for past context
+- Explicitly storing important information
+
+### 6. Complete the Lab
+
+Follow the instructions in [simple-memory-agent/EXERCISE.md](simple-memory-agent/EXERCISE.md) to:
+1. Understand the architecture
+2. Extend the agent with new capabilities
+3. Test memory behavior across scenarios
+4. Write a brief reflection on memory patterns
 
 ## Project Structure
 
@@ -94,140 +152,152 @@ uv run python agent.py
 agents-memory/
 ├── README.md                              # This file
 ├── pyproject.toml                         # Project dependencies
+├── MEMORY_OPTIONS.md                      # Comparison of memory solutions
 │
-├── simple-memory-agent/                   # Problem 1 (50 points) - SOLVED
-│   ├── EXERCISE.md                        # Lab walkthrough
+├── simple-memory-agent/                   # Main lab (100 points)
+│   ├── EXERCISE.md                        # Lab instructions
 │   ├── README.md                          # Technical documentation
-│   ├── architecture.md                    # System architecture
-│   ├── agent.py                           # Main agent implementation
-│   ├── memory.py                          # Circular buffer memory
-│   ├── test_agent.py                      # Test examples
+│   ├── agent.py                           # Memory-enabled agent
 │   └── .env.example                       # Environment template
 │
-└── conversational-memory-agent/           # Problem 2 (100 points)
-    ├── EXERCISE.md                        # Lab instructions
-    ├── README.md                          # Technical documentation
-    ├── architecture.md                    # Implementation guide
-    ├── agent.py                           # Main file (TODO: implement)
-    ├── memory/
-    │   ├── short_term.py                  # Conversation buffer
-    │   ├── medium_term.py                 # Summarization layer
-    │   └── long_term.py                   # Vector store (TODO)
-    └── .env.example                       # Environment template
+└── conversational-memory-agent/           # Optional: Legacy reference
+    └── (manual memory implementation)
 ```
+
+## Key Concepts
+
+### Automatic vs Explicit Memory
+
+**Automatic Storage**: Every conversation turn is stored in Mem0
+- User messages stored automatically
+- Agent responses stored automatically
+- Background process, transparent to user
+- Always available for semantic search
+
+**Explicit Storage**: Agent deliberately stores information
+- When user says "remember this"
+- When agent identifies key facts or preferences
+- Uses `insert_memory` tool
+- Can include metadata and tags
+
+### Semantic Search
+
+Mem0 uses embeddings to find relevant memories by meaning, not just keywords:
+
+```
+User: "What's my job?"
+↓
+Query embedding: [0.2, -0.1, 0.5, ...]
+↓
+Compare to all memory embeddings
+↓
+Top match: "Alice is a software engineer" (similarity: 0.89)
+```
+
+This enables natural, intelligent memory recall.
+
+### When to Search Memory
+
+The agent decides when to search based on:
+- User asks about past conversations
+- Question could benefit from historical context
+- Proactive recall could improve response quality
+
+This decision-making is key to intelligent memory systems.
 
 ## Grading
 
-### Problem 1: Simple Memory Agent (50 points)
-
-**This is a solved example - no deliverables required**
-
-Students should review and understand:
-- How circular buffers work
-- Memory eviction strategies
-- Conversation context formatting
-- Token budget management
-
-### Problem 2: Conversational Memory Agent (100 points)
+### Simple Memory Agent (100 points)
 
 **Deliverables**:
-- [ ] Implemented `long_term.py` with semantic vector store
-- [ ] Completed memory retrieval logic in `agent.py`
-- [ ] Implemented conversation summarization in `medium_term.py`
-- [ ] Test output files demonstrating memory capabilities
-- [ ] Code follows project standards (type hints, docstrings, error handling)
+- [ ] Completed code with new capability (40 points)
+- [ ] Test output files demonstrating memory behavior (40 points)
+- [ ] Brief report on memory patterns (20 points)
 
 **Evaluation Criteria**:
-- Vector store implementation (25 points)
-- Summarization logic (20 points)
-- Memory retrieval strategy (25 points)
-- Multi-turn conversation handling (20 points)
-- Code quality and standards (10 points)
+- New capability implementation and design
+- Test coverage of memory scenarios
+- Understanding of memory patterns and trade-offs
+- Code quality and documentation
 
-## Memory Patterns Overview
+See [simple-memory-agent/EXERCISE.md](simple-memory-agent/EXERCISE.md) for detailed requirements.
 
-### Pattern 1: Circular Buffer (Problem 1)
-Simple FIFO queue for conversation history with fixed capacity. Best for:
-- Short conversations
-- Simple chatbots
-- Limited context requirements
-- Fast, in-memory operations
+## Memory Pattern Comparison
 
-### Pattern 2: Hierarchical Memory (Problem 2)
-Multi-tier memory with summarization and semantic search. Best for:
-- Long-running conversations
-- Complex agents requiring historical context
-- Production applications
-- Cost-sensitive deployments
+| Feature | Manual (Circular Buffer) | Mem0 | langmem | AWS Bedrock |
+|---------|-------------------------|------|---------|-------------|
+| Setup Complexity | Low | Low | Medium | High |
+| Cost | Free | Free/Paid | Free | Paid |
+| Semantic Search | No | Yes | Yes | Yes |
+| Production Ready | No | Yes | Yes | Yes |
+| Learning Curve | Easy | Easy | Medium | Medium |
+| Best For | Learning, demos | Most cases | Custom needs | Enterprise |
 
-### Pattern Comparison
+## Troubleshooting
 
-| Feature | Circular Buffer | Hierarchical Memory |
-|---------|----------------|---------------------|
-| Complexity | Low | High |
-| Token Cost | Low (fixed) | Medium (summarization) |
-| Context Retention | Limited | Extensive |
-| Semantic Search | No | Yes |
-| Implementation Time | Fast | Moderate |
-| Best For | Demos, simple bots | Production agents |
+### Groq API Key Issues
+
+```bash
+ValueError: API key required
+```
+
+**Solution**: Set `GROQ_API_KEY` in `.env` file
+
+### Mem0 Installation Issues
+
+```bash
+uv pip install mem0ai
+```
+
+### Qdrant Connection Errors
+
+Delete `./memory_db` directory and restart:
+```bash
+rm -rf simple-memory-agent/memory_db
+uv run python simple-memory-agent/agent.py
+```
+
+### Embedding Model Download
+
+First run downloads MiniLM model (approximately 100MB). This is normal and only happens once.
+
+### Memory Not Persisting
+
+Check that `./memory_db` directory exists and has write permissions:
+```bash
+ls -la simple-memory-agent/memory_db
+```
 
 ## Resources
 
-### Official Documentation
-- [Anthropic Claude API](https://docs.anthropic.com/claude/reference/getting-started-with-the-api)
-- [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/)
-- [LangChain Memory](https://python.langchain.com/docs/modules/memory/)
+### Documentation
+- [Mem0 Documentation](https://docs.mem0.ai/)
+- [Strands SDK Documentation](https://github.com/awslabs/strands)
+- [Groq Documentation](https://console.groq.com/docs)
+- [Qdrant Documentation](https://qdrant.tech/documentation/)
 
 ### Learning Resources
 - [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) - Anthropic's guide
 - [Memory in LLM Agents](https://lilianweng.github.io/posts/2023-06-23-agent/) - Lilian Weng's blog
-
-## Troubleshooting
-
-### Memory Usage Issues
-```bash
-# Monitor memory usage
-import psutil
-process = psutil.Process()
-print(f"Memory: {process.memory_info().rss / 1024 / 1024:.2f} MB")
-```
-
-### API Key Issues
-```bash
-# Verify keys are set
-echo $ANTHROPIC_API_KEY
-# For AWS Bedrock
-aws bedrock list-foundation-models --region us-east-1
-```
-
-### Vector Store Issues
-```python
-# Check embedding dimensions
-embeddings = model.embed("test")
-print(f"Embedding dimensions: {len(embeddings)}")
-```
-
-## Submission
-
-Submit to your course platform:
-1. Your completed code files for Problem 2
-2. Test output files demonstrating memory functionality
-3. A brief write-up answering the reflection questions in EXERCISE.md
-4. Discussion of trade-offs between memory patterns
-
-## Solutions Branch
-
-Reference implementations are available in the `solutions` branch:
-```bash
-git checkout solutions
-```
-
-**Important**: Problem 1 is already solved in the main branch. Problem 2 solutions are in the solutions branch for reference if you're stuck.
+- [Sentence Transformers](https://www.sbert.net/) - Embedding models
 
 ## Next Steps
 
-After completing these labs, explore:
-- **agents-observability-and-evals**: Learn to monitor and evaluate agent performance
-- **advanced-agentic-patterns**: Multi-agent orchestration and coordination
-- Production deployment patterns with memory persistence
-- Memory optimization techniques for cost reduction
+After completing this lab:
+- Explore advanced memory patterns (summarization, consolidation)
+- Try different vector databases (ChromaDB, Pinecone)
+- Build multi-agent systems with shared memory
+- Study AWS Bedrock AgentCore memory for enterprise use cases
+- Implement memory in your own production agents
+
+## Support
+
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Review [MEMORY_OPTIONS.md](MEMORY_OPTIONS.md) for architecture guidance
+3. Consult the [simple-memory-agent/README.md](simple-memory-agent/README.md) technical docs
+4. Check Mem0 and Strands SDK documentation
+
+## License
+
+This educational material is provided for learning purposes. See individual dependencies for their licenses.
