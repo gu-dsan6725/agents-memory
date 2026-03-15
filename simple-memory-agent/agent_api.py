@@ -31,7 +31,7 @@ from pydantic import (
     Field,
 )
 
-from agent_stateless import StatelessAgent
+from agent import Agent
 
 
 # Configure logging
@@ -51,36 +51,59 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Global stateless agent instance (ONE instance serves ALL users/sessions)
-_global_agent: Optional[StatelessAgent] = None
+# Session cache: run_id -> Agent instance
+# Each session (run_id) gets its own Agent to maintain conversation context
+_session_cache: Dict[str, Agent] = {}
 
 
-def _get_agent() -> StatelessAgent:
+def _get_or_create_agent(
+    user_id: str,
+    run_id: str
+) -> Agent:
     """
-    Get or create the global stateless agent instance.
+    Get existing Agent for session or create new one.
 
-    ONE instance serves ALL users. User context (user_id, run_id) is passed
-    per request to the chat() method, not stored in the agent.
+    ONE Agent per session (run_id). This allows the Strands Agent to maintain
+    conversation context across multiple turns within the same session.
 
-    This is true multi-tenant architecture.
+    Args:
+        user_id: User identifier for memory isolation
+        run_id: Session identifier
+
+    Returns:
+        Agent instance for this session
     """
-    global _global_agent
-    if _global_agent is None:
-        api_key = (
-            os.getenv("ANTHROPIC_API_KEY") or
-            os.getenv("GROQ_API_KEY") or
-            os.getenv("OPENAI_API_KEY")
+    # Check if we already have an agent for this session
+    if run_id in _session_cache:
+        logger.info(f"Reusing existing agent for session: {run_id}")
+        return _session_cache[run_id]
+
+    # Create new agent for this session
+    logger.info(f"Creating new agent for session: {run_id}")
+
+    api_key = (
+        os.getenv("ANTHROPIC_API_KEY") or
+        os.getenv("GROQ_API_KEY") or
+        os.getenv("OPENAI_API_KEY")
+    )
+    if not api_key:
+        raise RuntimeError(
+            "No API key configured. Set ANTHROPIC_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY"
         )
-        if not api_key:
-            raise RuntimeError(
-                "No API key configured. Set ANTHROPIC_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY"
-            )
 
-        # Create single agent instance (shared across all requests)
-        _global_agent = StatelessAgent(api_key=api_key)
-        logger.info("Initialized global StatelessAgent instance")
+    # Create agent with user_id and run_id
+    agent = Agent(
+        user_id=user_id,
+        run_id=run_id,
+        api_key=api_key
+    )
 
-    return _global_agent
+    # Cache it for this session
+    _session_cache[run_id] = agent
+
+    logger.info(f"Cached agent for session: {run_id} (cache size: {len(_session_cache)})")
+
+    return agent
 
 
 # Pydantic Models
@@ -151,36 +174,36 @@ async def invoke_agent(request: InvocationRequest):
         HTTPException: If agent invocation fails
     """
     try:
+        # Auto-generate run_id if not provided
+        import uuid
+        run_id = request.run_id or str(uuid.uuid4())[:8]
+
         logger.info(
             f"Invocation request - user: {request.user_id}, "
-            f"run_id: {request.run_id or 'auto'}, "
+            f"run_id: {run_id}, "
             f"query length: {len(request.query)}"
         )
 
-        # Get global agent instance (ONE instance serves ALL users)
-        agent = _get_agent()
-
-        # Get agent response with user context
-        # The stateless agent doesn't store user_id/run_id, so we pass them per request
-        response_text = agent.chat(
-            query=request.query,
+        # Get or create agent for this session
+        # If run_id exists in cache, reuse the same Agent instance
+        # This allows Strands to maintain conversation context within the session
+        agent = _get_or_create_agent(
             user_id=request.user_id,
-            run_id=request.run_id  # Will auto-generate if None
+            run_id=run_id
         )
 
-        # Get the run_id that was used (in case it was auto-generated)
-        import uuid
-        used_run_id = request.run_id or str(uuid.uuid4())[:8]
+        # Get agent response (simple chat call, agent already has user_id/run_id)
+        response_text = agent.chat(request.query)
 
         logger.info(
             f"Agent response generated - user: {request.user_id}, "
-            f"session: {used_run_id}, "
+            f"session: {run_id}, "
             f"response length: {len(response_text)}"
         )
 
         return InvocationResponse(
             user_id=request.user_id,
-            run_id=used_run_id,
+            run_id=run_id,
             query=request.query,
             response=response_text
         )
