@@ -1,0 +1,54 @@
+=== Alice Session 1 ===
+
+User: Hi, I'm Alice. I'm a software engineer.
+Agent: Is there anything I can help you with today? Whether it's coding questions, project advice, tech topics, or anything else—I'm here to help!
+
+User: I prefer Python for development.
+Agent: That's a great choice! Python is incredibly versatile and powerful—great for everything from web development and data science to automation and machine learning. Since you prefer Python, if you ever need help with Python-related questions, debugging, best practices, or project recommendations, feel free to ask. I'm happy to discuss it with you!
+
+User: What programming languages do I like?
+Agent: Based on what you've shared with me, you prefer **Python** for development. That's your main preference so far!
+
+If you work with or enjoy other languages as well, I'd be happy to hear about them. Do you have other favorites or languages you work with regularly?
+
+User: I'm working on a FastAPI project.
+Agent: How can I help with your FastAPI project? Whether you need assistance with:
+- API endpoint design
+- Database integration (SQLAlchemy, etc.)
+- Authentication and security
+- Error handling and validation
+- Async/await patterns
+- Deployment
+- Testing
+- Or anything else related to FastAPI
+
+I'm here to help! What are you working on specifically?
+
+User: What have we discussed so far?
+Agent: Here's what we've discussed so far:
+
+1. **You're a software engineer** - that's your profession
+2. **You prefer Python for development** - it's your language of choice
+3. **You're working on a FastAPI project** - a modern Python web framework for building APIs
+
+That's the key information you've shared with me in our conversation. Is there anything else you'd like to tell me or discuss?
+
+
+=== Alice Session 2 (New Session) ===
+
+User: What do you remember about me?
+Agent: I don't have any memories of previous conversations with you yet. This appears to be the start of our conversation together, or if we have interacted before, I don't have relevant information stored.
+
+However, I do have the ability to remember things about you going forward! Here's how it works:
+
+- **Automatic storage**: All conversations are automatically stored, so I'll have context about what we discuss
+- **Explicit memory**: If you want to make sure I remember something important, you can tell me to "remember" it, and I can explicitly store that information
+- **Search capability**: If you ask me about something from a past conversation, I can search my memory to find that information
+
+Is there anything you'd like to tell me about yourself? Or if you've spoken with me before and think I should remember something specific, feel free to remind me!
+
+User: What project am I working on?
+Agent: The search didn't return any specific information about a project you're working on. It seems we haven't discussed this yet, or there's no stored memory about it.
+
+Could you tell me about your project? I'd be happy to help, and I can remember the details for future conversations!
+
