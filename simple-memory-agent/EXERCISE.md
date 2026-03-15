@@ -1,321 +1,154 @@
-# Problem 1: Simple Memory Agent - Walkthrough
+# Simple Memory Agent - Lab Exercises
 
 ## Overview
 
-This is a **solved example** that demonstrates the fundamental pattern for maintaining conversation memory in AI agents. Study this implementation to understand how circular buffers work before moving to Problem 2.
+This lab contains exercises to help you understand multi-tenant memory systems and implement production-ready web APIs with memory. You will first run and understand the demo agent, then convert it into a FastAPI application with user isolation and multi-session tracking.
 
-**Time to Review**: 30-45 minutes
-**Points**: 50 (understanding check only)
+## Reference Implementation
 
-## Learning Objectives
+Before starting Problem 2, review the streaming stock agent example from the Advanced Agentic Patterns course:
+- **Location**: `~/repos/advanced-agentic-patterns/streaming-stock-agent/`
+- **Key concepts**: FastAPI setup, Server-Sent Events (SSE) streaming, Pydantic models, endpoint design
 
-By studying this solved example, you will understand:
+---
 
-1. How to maintain conversation state across multiple turns
-2. The circular buffer data structure for memory management
-3. Token budget management and context window constraints
-4. Formatting conversation history for LLM context
-5. Basic memory eviction strategies (FIFO)
+## Problem 1: Understanding the Memory Agent (10 Points)
 
-## Architecture Overview
+### Objective
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  Simple Memory Agent                 │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│  ┌────────────────────────────────────────────┐    │
-│  │         Circular Buffer Memory              │    │
-│  │  ┌────┬────┬────┬────┬────┬────┬────┬────┐ │    │
-│  │  │ M1 │ M2 │ M3 │ M4 │ M5 │ M6 │ M7 │ M8 │ │    │
-│  │  └────┴────┴────┴────┴────┴────┴────┴────┘ │    │
-│  │         ^                             ^      │    │
-│  │      oldest                      newest      │    │
-│  │                                              │    │
-│  │  When buffer is full:                        │    │
-│  │  - New message evicts oldest message         │    │
-│  │  - FIFO (First In, First Out) strategy      │    │
-│  └────────────────────────────────────────────┘    │
-│                       ↓                             │
-│  ┌────────────────────────────────────────────┐    │
-│  │        Format for LLM Context               │    │
-│  │                                              │    │
-│  │  System: You are a helpful assistant...     │    │
-│  │  User: [message 1]                          │    │
-│  │  Assistant: [response 1]                    │    │
-│  │  User: [message 2]                          │    │
-│  │  Assistant: [response 2]                    │    │
-│  │  ...                                         │    │
-│  └────────────────────────────────────────────┘    │
-│                       ↓                             │
-│  ┌────────────────────────────────────────────┐    │
-│  │              Claude API                     │    │
-│  │        (Amazon Bedrock or Anthropic)        │    │
-│  └────────────────────────────────────────────┘    │
-│                                                      │
-└─────────────────────────────────────────────────────┘
-```
+Run the demo agent to understand how semantic memory works across a conversation. The agent demonstrates different types of memory (factual, semantic, preference, episodic) within a single conversation session.
 
-## Key Concepts
+### What is agent.py?
 
-### 1. Circular Buffer
+The `agent.py` file contains a **pre-programmed demonstration** with a canned conversation between a user (Alice) and the agent. This is **not** an interactive chat - it's a scripted demo designed to showcase different memory capabilities:
 
-A circular buffer is a fixed-size data structure that overwrites the oldest data when full:
+1. **Turn 1-2**: Alice introduces herself and shares project information (factual + semantic memory)
+2. **Turn 3**: Tests memory recall - agent retrieves name and occupation
+3. **Turn 4**: Explicit memory insertion - Alice states preferences
+4. **Turn 5**: Tests preference retrieval - agent recalls coding preferences
+5. **Turn 6**: New topic (neural networks) - no memory search needed
+6. **Turn 7**: Tests episodic recall - agent remembers the ML project
 
-```python
-class CircularBuffer:
-    def __init__(self, max_size: int):
-        self.max_size = max_size
-        self.buffer = []
+**All of this happens in ONE session** (you'll see a session ID like `75c52f1d` in the logs), demonstrating how the memory system:
+- Automatically stores conversations in the background
+- Semantically searches when needed
+- Explicitly stores important information via tool calls
+- Recalls context across multiple conversation turns
 
-    def add(self, item):
-        if len(self.buffer) >= self.max_size:
-            self.buffer.pop(0)  # Remove oldest
-        self.buffer.append(item)  # Add newest
-```
+### Requirements
 
-**Benefits**:
-- Fixed memory footprint
-- Predictable token usage
-- Simple implementation
-- Fast operations (O(1) amortized)
+#### 1. Run the Agent Demo
 
-**Trade-offs**:
-- Loses old context
-- No semantic awareness
-- Cannot retrieve specific memories
-
-### 2. Token Budget Management
-
-LLMs have context window limits (e.g., Claude 3: 200K tokens). We must:
-
-1. **Track token usage**: Approximate tokens per message
-2. **Set buffer limits**: Conservative estimate to avoid exceeding limits
-3. **Format efficiently**: Minimize system prompt overhead
-
-```python
-# Rough estimate: 1 token ≈ 4 characters
-def estimate_tokens(text: str) -> int:
-    return len(text) // 4
-
-# Set buffer size based on token budget
-MAX_CONTEXT_TOKENS = 4000
-AVG_MESSAGE_TOKENS = 100
-MAX_MESSAGES = MAX_CONTEXT_TOKENS // AVG_MESSAGE_TOKENS  # 40 messages
-```
-
-### 3. Conversation Formatting
-
-Conversation history must be formatted for the LLM:
-
-```python
-messages = [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "What is Python?"},
-    {"role": "assistant", "content": "Python is a programming language..."},
-    {"role": "user", "content": "Tell me more."},
-]
-```
-
-## Code Walkthrough
-
-### File: `memory.py`
-
-The circular buffer implementation:
-
-```python
-from collections import deque
-from typing import Dict, List
-
-class ConversationMemory:
-    """Circular buffer for conversation history."""
-
-    def __init__(
-        self,
-        max_turns: int = 10
-    ):
-        """Initialize memory with maximum conversation turns.
-
-        Args:
-            max_turns: Maximum number of conversation turns to store
-        """
-        self.max_turns = max_turns
-        self.messages: deque = deque(maxlen=max_turns * 2)
-
-    def add_user_message(self, content: str) -> None:
-        """Add a user message to memory."""
-        self.messages.append({"role": "user", "content": content})
-
-    def add_assistant_message(self, content: str) -> None:
-        """Add an assistant message to memory."""
-        self.messages.append({"role": "assistant", "content": content})
-
-    def get_messages(self) -> List[Dict[str, str]]:
-        """Get all messages in conversation order."""
-        return list(self.messages)
-
-    def clear(self) -> None:
-        """Clear all messages from memory."""
-        self.messages.clear()
-```
-
-**Key Points**:
-- Uses `collections.deque` with `maxlen` for automatic eviction
-- Stores messages as role-content dictionaries
-- Simple API: add messages, retrieve history, clear
-
-### File: `agent.py`
-
-The conversational agent using memory:
-
-```python
-import os
-from anthropic import Anthropic
-from memory import ConversationMemory
-
-class SimpleMemoryAgent:
-    """Conversational agent with circular buffer memory."""
-
-    def __init__(
-        self,
-        max_turns: int = 10,
-        model: str = "claude-3-5-sonnet-20241022"
-    ):
-        self.client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        self.memory = ConversationMemory(max_turns=max_turns)
-        self.model = model
-        self.system_prompt = "You are a helpful assistant with memory of our conversation."
-
-    def chat(self, user_input: str) -> str:
-        """Process user input and return assistant response."""
-        # Add user message to memory
-        self.memory.add_user_message(user_input)
-
-        # Get full conversation history
-        messages = self.memory.get_messages()
-
-        # Call Claude with conversation history
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=1024,
-            system=self.system_prompt,
-            messages=messages
-        )
-
-        # Extract response text
-        assistant_response = response.content[0].text
-
-        # Add assistant response to memory
-        self.memory.add_assistant_message(assistant_response)
-
-        return assistant_response
-```
-
-**Key Points**:
-- Memory is passed to LLM on every turn
-- Agent automatically maintains conversation context
-- Simple stateful interface: just call `chat()`
-
-## Running the Example
-
-### 1. Set up environment
+Execute the agent and capture its output to a log file:
 
 ```bash
-cd simple-memory-agent
-cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+uv run python agent.py 2>&1 | tee agent_output.log
 ```
 
-### 2. Run the agent
+**What this does:**
+- `uv run python agent.py` - Runs the demo agent
+- `2>&1` - Redirects both stdout and stderr to capture all output
+- `| tee agent_output.log` - Displays output on screen AND saves to file
+
+The demo takes about 30-60 seconds to complete.
+
+#### 2. Review the Output
+
+Open `agent_output.log` and look for:
+
+**Session Information:**
+```
+Initializing Agent - user: demo_user, agent: memory-agent, session: 75c52f1d
+```
+- **user_id**: `demo_user` - The user identifier
+- **agent_id**: `memory-agent` - The agent identifier
+- **session/run_id**: `75c52f1d` - Unique session ID for this conversation
+
+**Turn-by-Turn Conversations:**
+Each turn shows:
+- User input
+- Agent response
+- Tool calls (when agent uses memory tools)
+
+**Tool Usage Examples:**
+```
+Tool #1: insert_memory
+Tool #2: insert_memory
+Tool #3: insert_memory
+```
+
+When you see these, the agent is explicitly storing information.
+
+**Memory Statistics (at end):**
+```
+Memory Statistics:
+  Total memories stored: 17
+
+Sample memories:
+  - Name is Alice
+  - Familiar with scikit-learn, TensorFlow, Keras, and PyTorch libraries
+  - Can help debug machine learning code issues
+```
+
+#### 3. Understand Different Memory Types
+
+In the output, identify examples of each memory type:
+
+**Factual Memory** (Turn 1):
+- "Name is Alice"
+- "Is a software engineer"
+- "Specializes in Python"
+
+**Semantic Memory** (Turn 2):
+- "Working on a machine learning project"
+- "Uses scikit-learn for the project"
+- "Familiar with scikit-learn, TensorFlow, Keras, PyTorch"
+
+**Preference Memory** (Turn 4-5):
+- "Favorite programming language is Python"
+- "Prefers clean, maintainable code"
+
+**Episodic Memory** (Turn 7):
+- Remembers the specific ML project mentioned earlier
+- Recalls the conversation context
+
+**Key Observations:**
+1. All memories are isolated by `user_id="demo_user"`
+2. All memories are tagged with `session=75c52f1d`
+3. Agent automatically decides when to search memory (Turns 3, 5, 7)
+4. Agent uses `insert_memory` tool for explicit storage (Turns 1, 2, 4)
+5. Background storage happens after each turn
+
+#### 4. Commit the Log File
+
+This proves you ran the code successfully:
 
 ```bash
-uv run python agent.py
+git add agent_output.log
+git commit -m "Add agent demo output log"
 ```
 
-### 3. Test conversation
+### Deliverables (10 Points)
 
-```python
-# The agent demonstrates multi-turn memory:
+1. **agent_output.log** (5 points) - Committed to git showing successful execution
+2. **Understanding document** (5 points) - Brief write-up (can be added to README or separate file) explaining:
+   - What the 7 turns demonstrate
+   - Examples of each memory type you found in the output
+   - How session IDs are used
+   - When the agent searches memory vs. when it inserts
 
-agent = SimpleMemoryAgent(max_turns=5)
+### Evaluation Criteria
 
-# Turn 1
-response1 = agent.chat("My name is Alice")
-# Assistant: Nice to meet you, Alice!
+- **Execution** (5 pts): `agent_output.log` shows complete demo run with all 7 turns
+- **Understanding** (5 pts): Document shows clear comprehension of:
+  - Different memory types
+  - Tool usage patterns
+  - Session tracking
+  - Automatic vs. explicit memory storage
 
-# Turn 2
-response2 = agent.chat("What is my name?")
-# Assistant: Your name is Alice.
+---
 
-# Turn 3 (6 turns later, after buffer fills)
-response3 = agent.chat("Do you remember my name?")
-# Assistant: I don't see your name in our recent conversation...
-```
+## Problem 2: FastAPI Agent Application
 
-## Understanding Memory Limits
+### Objective
 
-When the circular buffer fills up:
-
-```
-Initial state (max_turns=3):
-┌────────────────────────────────────┐
-│ Buffer: [empty]                    │
-└────────────────────────────────────┘
-
-After 3 turns:
-┌────────────────────────────────────┐
-│ Buffer: [U1, A1, U2, A2, U3, A3]   │
-│         (FULL)                     │
-└────────────────────────────────────┘
-
-After 4th turn:
-┌────────────────────────────────────┐
-│ Buffer: [U2, A2, U3, A3, U4, A4]   │
-│         ^^^^^                      │
-│         U1, A1 evicted!            │
-└────────────────────────────────────┘
-```
-
-The agent **loses memory** of U1 and A1!
-
-## Study Questions
-
-Consider these questions as you review the code:
-
-1. **Why use a circular buffer instead of storing all messages?**
-   - Hint: Think about token limits and cost
-
-2. **What happens to old context when the buffer fills up?**
-   - Hint: Trace through several conversation turns
-
-3. **How would you handle system-critical information?**
-   - Hint: What if user says "My password is X" and it gets evicted?
-
-4. **What are the limitations of this approach?**
-   - Hint: Consider long conversations, important facts, semantic search
-
-5. **When is this pattern sufficient?**
-   - Hint: Think about use cases and conversation length
-
-## Next Steps
-
-After understanding this example, proceed to **Problem 2** where you'll implement:
-
-- Multi-tier memory (short, medium, long-term)
-- Conversation summarization to compress old context
-- Semantic search with embeddings
-- Intelligent memory retrieval strategies
-
-## Reflection Questions (Not Graded)
-
-Write brief answers to these questions:
-
-1. Explain how the circular buffer prevents memory from growing indefinitely.
-
-2. What are the trade-offs between a small buffer (5 turns) vs large buffer (50 turns)?
-
-3. How would you modify this design if the agent needed to remember specific user preferences forever?
-
-4. Describe a scenario where this simple memory pattern would be insufficient.
-
-These reflections will help you appreciate why Problem 2's hierarchical memory system is necessary for production agents.

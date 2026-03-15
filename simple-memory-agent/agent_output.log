@@ -1,0 +1,371 @@
+2026-03-15 21:25:51,033,p4011630,{agent.py:430},INFO,Initializing Agent - user: demo_user, agent: memory-agent, session: 75c52f1d
+2026-03-15 21:25:51,033,p4011630,{memory_manager.py:251},INFO,Initializing multi-tenant MemoryManager (services all users/sessions)
+2026-03-15 21:25:51,033,p4011630,{memory_manager.py:194},INFO,Initialized Mem0 config with Qdrant at ./qdrant_data
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-03-15 21:25:56,537,p4011630,{_http.py:916},WARNING,Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Memory Agent Demo - Mem0 + Strands + LiteLLM
+======================================================================
+
+Initializing agent with semantic memory...
+
+NOTE: You may see 'tool_use_failed' ValueError messages during execution.
+      These are harmless warnings from LiteLLM/Groq integration and are
+      automatically handled by retry logic. The agent works correctly.
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2590.40it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+2026-03-15 21:25:57,035,p4011630,{memory_manager.py:269},INFO,Async memory backend initialized successfully
+2026-03-15 21:25:57,035,p4011630,{agent.py:442},INFO,Memory manager initialized for multi-tenant operation
+2026-03-15 21:25:57,040,p4011630,{agent.py:166},INFO,Created search_memory tool
+2026-03-15 21:25:57,042,p4011630,{agent.py:237},INFO,Created insert_memory tool
+2026-03-15 21:25:57,043,p4011630,{agent.py:318},INFO,Created web_search tool
+2026-03-15 21:25:57,044,p4011630,{agent.py:470},INFO,Initialized Agent with model claude-haiku-4-5-20251001 and 3 tools (2 memory + 1 web search)
+2026-03-15 21:25:57,044,p4011630,{agent.py:502},INFO,Processing user input (length: 72 chars)
+2026-03-15 21:25:57,045,p4011630,{metrics.py:557},INFO,Creating Strands MetricsClient
+[92m21:25:57 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:25:57,062,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:25:59,297,p4011630,{agent.py:206},INFO,Inserting explicit memory: 'Alice is a software engineer specializing in Python....'
+2026-03-15 21:25:59,297,p4011630,{memory_manager.py:312},INFO,Inserting memory for user=demo_user, agent=memory-agent, session=75c52f1d: 'Alice is a software engineer specializing in Python....'
+[92m21:25:59 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:25:59,298,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:25:59 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:25:59,868,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+[92m21:25:59 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:25:59,927,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:04 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:04,135,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:04,175,p4011630,{memory_manager.py:334},INFO,Memory stored for user=demo_user with context (agent=memory-agent, session=75c52f1d)
+2026-03-15 21:26:04,175,p4011630,{memory_manager.py:344},INFO,Memory inserted successfully
+2026-03-15 21:26:04,176,p4011630,{agent.py:224},INFO,Successfully inserted memory
+[92m21:26:04 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:04,178,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:04,938,p4011630,{agent.py:511},INFO,Received response (length: 181 chars)
+[92m21:26:04 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:04,940,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:06 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:06,072,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:06,075,p4011630,{agent.py:502},INFO,Processing user input (length: 61 chars)
+[92m21:26:06 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:06,078,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:06,984,p4011630,{agent.py:206},INFO,Inserting explicit memory: 'Alice is working on a machine learning project using scikit-learn....'
+2026-03-15 21:26:06,984,p4011630,{memory_manager.py:312},INFO,Inserting memory for user=demo_user, agent=memory-agent, session=75c52f1d: 'Alice is working on a machine learning project using scikit-learn....'
+[92m21:26:06 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:06,986,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:07 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:07,719,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+[92m21:26:07 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:07,777,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:08 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:08,792,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:08,813,p4011630,{memory_manager.py:334},INFO,Memory stored for user=demo_user with context (agent=memory-agent, session=75c52f1d)
+2026-03-15 21:26:08,814,p4011630,{memory_manager.py:344},INFO,Memory inserted successfully
+2026-03-15 21:26:08,814,p4011630,{agent.py:224},INFO,Successfully inserted memory
+[92m21:26:08 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:08,816,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:10,720,p4011630,{agent.py:511},INFO,Received response (length: 654 chars)
+[92m21:26:10 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:10,721,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:11 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:11,851,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+[92m21:26:12 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:12,100,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:14 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:14,574,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:14,633,p4011630,{agent.py:502},INFO,Processing user input (length: 30 chars)
+[92m21:26:14 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:14,636,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:15,337,p4011630,{agent.py:511},INFO,Received response (length: 149 chars)
+[92m21:26:15 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:15,338,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:17 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:17,177,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:17,181,p4011630,{agent.py:502},INFO,Processing user input (length: 102 chars)
+[92m21:26:17 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:17,184,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:17,959,p4011630,{agent.py:206},INFO,Inserting explicit memory: 'Alice's favorite programming language is Python and she prefers clean, maintainable code....'
+2026-03-15 21:26:17,959,p4011630,{memory_manager.py:312},INFO,Inserting memory for user=demo_user, agent=memory-agent, session=75c52f1d: 'Alice's favorite programming language is Python and she prefers clean, maintainable code....'
+[92m21:26:17 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:17,961,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:18 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:18,588,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+[92m21:26:18 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:18,645,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:20 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:20,608,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:20,630,p4011630,{memory_manager.py:334},INFO,Memory stored for user=demo_user with context (agent=memory-agent, session=75c52f1d)
+2026-03-15 21:26:20,631,p4011630,{memory_manager.py:344},INFO,Memory inserted successfully
+2026-03-15 21:26:20,631,p4011630,{agent.py:224},INFO,Successfully inserted memory
+[92m21:26:20 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:20,633,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:22,081,p4011630,{agent.py:511},INFO,Received response (length: 436 chars)
+[92m21:26:22 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:22,083,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:23 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:23,362,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:23,366,p4011630,{agent.py:502},INFO,Processing user input (length: 48 chars)
+[92m21:26:23 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:23,369,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:24,828,p4011630,{agent.py:511},INFO,Received response (length: 427 chars)
+[92m21:26:24 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:24,829,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:27 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:27,939,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:27,943,p4011630,{agent.py:502},INFO,Processing user input (length: 30 chars)
+[92m21:26:27 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:27,946,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+Agent initialized! Features:
+  - Automatic background storage of all conversations
+  - Semantic search across conversation history
+  - Explicit memory insertion for important facts
+  - Web search for current information (DuckDuckGo)
+  - Qdrant vector database with HuggingFace embeddings
+
+
+──────────────────────────────────────────────────────────────────────
+Turn 1: 1. Introduction
+──────────────────────────────────────────────────────────────────────
+User: Hi! My name is Alice and I'm a software engineer specializing in Python.
+
+Hi Alice! It's great to meet you! I'll remember that you're a software engineer specializing in Python. This will be helpful context for our conversations going forward, especially if you have questions about Python development, coding challenges, or software engineering topics.
+Tool #1: insert_memory
+Feel free to ask me anything—whether it's Python-related questions, code reviews, debugging help, best practices, or anything else you'd like to discuss. What brings you here today?Assistant: Feel free to ask me anything—whether it's Python-related questions, code reviews, debugging help, best practices, or anything else you'd like to discuss. What brings you here today?
+
+──────────────────────────────────────────────────────────────────────
+Turn 2: 2. Share project info
+──────────────────────────────────────────────────────────────────────
+User: I'm working on a machine learning project using scikit-learn.
+
+Great! Machine learning with scikit-learn is a powerful combination. I'd be happy to help you with your project!
+
+Let me update my memory with this information for future reference:
+Tool #2: insert_memory
+What kind of machine learning project are you working on? I can help with:
+
+- **Model selection and training** - choosing the right algorithms, hyperparameter tuning
+- **Data preprocessing** - handling missing values, feature scaling, encoding
+- **Model evaluation** - cross-validation, performance metrics, confusion matrices
+- **Debugging** - troubleshooting code issues or unexpected results
+- **Best practices** - pipeline design, avoiding common pitfalls, optimization
+- **Specific algorithms** - classification, regression, clustering, dimensionality reduction, etc.
+
+What aspects are you currently working on or where are you looking for guidance?Assistant: What kind of machine learning project are you working on? I can help with:
+
+- **Model selection and training** - choosing the right algorithms, hyperparameter tuning
+- **Data preprocessing** - handling missing values, feature scaling, encoding
+- **Model evaluation** - cross-validation, performance metrics, confusion matrices
+- **Debugging** - troubleshooting code issues or unexpected results
+- **Best practices** - pipeline design, avoiding common pitfalls, optimization
+- **Specific algorithms** - classification, regression, clustering, dimensionality reduction, etc.
+
+What aspects are you currently working on or where are you looking for guidance?
+
+──────────────────────────────────────────────────────────────────────
+Turn 3: 3. Memory recall (should search automatically)
+──────────────────────────────────────────────────────────────────────
+User: What's my name and occupation?
+
+Your name is Alice, and you're a software engineer specializing in Python. You're currently working on a machine learning project using scikit-learn.Assistant: Your name is Alice, and you're a software engineer specializing in Python. You're currently working on a machine learning project using scikit-learn.
+
+──────────────────────────────────────────────────────────────────────
+Turn 4: 4. Explicit memory request
+──────────────────────────────────────────────────────────────────────
+User: Please remember that my favorite programming language is Python and I prefer clean, maintainable code.
+
+
+Tool #3: insert_memory
+Got it! I've stored that information. I'll keep in mind that you value clean, maintainable code when helping you with your Python projects. This is especially relevant for your scikit-learn work—I can help you structure your code with proper organization, documentation, and best practices to keep your ML project scalable and easy to understand.
+
+Is there anything specific about your current scikit-learn project you'd like help with?Assistant: Got it! I've stored that information. I'll keep in mind that you value clean, maintainable code when helping you with your Python projects. This is especially relevant for your scikit-learn work—I can help you structure your code with proper organization, documentation, and best practices to keep your ML project scalable and easy to understand.
+
+Is there anything specific about your current scikit-learn project you'd like help with?
+
+──────────────────────────────────────────────────────────────────────
+Turn 5: 5. Retrieve preferences (should search memory)
+──────────────────────────────────────────────────────────────────────
+User: What are my preferences when it comes to coding?
+
+Based on what you've shared, your coding preferences are:
+
+1. **Python is your favorite programming language** - you specialize in it
+2. **You prefer clean, maintainable code** - you value code quality and readability over quick solutions
+
+These preferences align well with software engineering best practices, and I'll keep them in mind when assisting you with your code, especially your scikit-learn machine learning project.Assistant: Based on what you've shared, your coding preferences are:
+
+1. **Python is your favorite programming language** - you specialize in it
+2. **You prefer clean, maintainable code** - you value code quality and readability over quick solutions
+
+These preferences align well with software engineering best practices, and I'll keep them in mind when assisting you with your code, especially your scikit-learn machine learning project.
+
+──────────────────────────────────────────────────────────────────────
+Turn 6: 6. New topic (no memory search needed)
+──────────────────────────────────────────────────────────────────────
+User: Tell me about neural networks.
+
+Neural networks are a powerful class of machine learning models inspired by biological neurons. Here's a comprehensive overview:
+
+## **Basic Concepts**
+
+**Structure:**
+- Organized in layers: input layer → hidden layers → output layer
+- Each layer contains neurons (nodes) connected by weighted edges
+- Information flows forward through the network during prediction
+
+**How They Work:**
+- Each neuron applies a weighted sum of inputs2026-03-15 21:26:31,525,p4011630,{agent.py:511},INFO,Received response (length: 1541 chars)
+[92m21:26:31 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:31,526,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:33 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:33,146,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+[92m21:26:33 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:33,306,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:35 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:35,783,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:35,842,p4011630,{agent.py:502},INFO,Processing user input (length: 35 chars)
+[92m21:26:35 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:35,845,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:37,048,p4011630,{agent.py:511},INFO,Received response (length: 322 chars)
+[92m21:26:37 - LiteLLM:INFO[0m: utils.py:3932 - 
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+2026-03-15 21:26:37,049,p4011630,{utils.py:3932},INFO,
+LiteLLM completion() model= claude-haiku-4-5-20251001; provider = anthropic
+[92m21:26:41 - LiteLLM:INFO[0m: utils.py:1656 - Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:41,861,p4011630,{utils.py:1656},INFO,Wrapper: Completed Call, calling success_handler
+2026-03-15 21:26:41,864,p4011630,{memory_manager.py:540},INFO,Retrieving all memories for user=demo_user
+2026-03-15 21:26:41,866,p4011630,{memory_manager.py:558},INFO,Retrieved 17 total memories for user=demo_user
+2026-03-15 21:26:41,867,p4011630,{agent.py:615},INFO,Retrieved 17 memories
+ plus a bias term
+- An activation function introduces non-linearity (ReLU, sigmoid, tanh, etc.)
+- During training, weights are adjusted via backpropagation to minimize loss
+
+## **Types of Neural Networks**
+
+- **Feedforward Neural Networks (FFNNs)** - Basic architecture, good for tabular data
+- **Convolutional Neural Networks (CNNs)** - Specialized for image processing
+- **Recurrent Neural Networks (RNNs/LSTMs)** - Handle sequential data like text or time series
+- **Transformers** - State-of-the-art for NLP tasks
+
+## **Key Advantages**
+- Can learn complex non-linear patterns
+- Excellent for unstructured data (images, text, audio)
+- Flexible and can be applied to many domains
+
+## **Python Libraries**
+Since you work with Python and scikit-learn, you might be interested in:
+- **TensorFlow/Keras** - Industry standard, great for deep learning
+- **PyTorch** - Popular in research, intuitive API
+- **scikit-learn** - Has basic MLPClassifier/MLPRegressor for simple neural networks
+
+Are you considering adding neural networks to your current scikit-learn project, or are you exploring them for future work?Assistant: Neural networks are a powerful class of machine learning models inspired by biological neurons. Here's a comprehensive overview:
+
+## **Basic Concepts**
+
+**Structure:**
+- Organized in layers: input layer → hidden layers → output layer
+- Each layer contains neurons (nodes) connected by weighted edges
+- Information flows forward through the network during prediction
+
+**How They Work:**
+- Each neuron applies a weighted sum of inputs plus a bias term
+- An activation function introduces non-linearity (ReLU, sigmoid, tanh, etc.)
+- During training, weights are adjusted via backpropagation to minimize loss
+
+## **Types of Neural Networks**
+
+- **Feedforward Neural Networks (FFNNs)** - Basic architecture, good for tabular data
+- **Convolutional Neural Networks (CNNs)** - Specialized for image processing
+- **Recurrent Neural Networks (RNNs/LSTMs)** - Handle sequential data like text or time series
+- **Transformers** - State-of-the-art for NLP tasks
+
+## **Key Advantages**
+- Can learn complex non-linear patterns
+- Excellent for unstructured data (images, text, audio)
+- Flexible and can be applied to many domains
+
+## **Python Libraries**
+Since you work with Python and scikit-learn, you might be interested in:
+- **TensorFlow/Keras** - Industry standard, great for deep learning
+- **PyTorch** - Popular in research, intuitive API
+- **scikit-learn** - Has basic MLPClassifier/MLPRegressor for simple neural networks
+
+Are you considering adding neural networks to your current scikit-learn project, or are you exploring them for future work?
+
+──────────────────────────────────────────────────────────────────────
+Turn 7: 7. Recall previous context (should search memory)
+──────────────────────────────────────────────────────────────────────
+User: What project did I mention earlier?
+
+Earlier, you mentioned that you're working on a **machine learning project using scikit-learn**.
+
+That's the extent of what you've shared about the project so far—you haven't gone into specifics about what the project does, what problem it solves, or which algorithms you're using. Would you like to tell me more about it?Assistant: Earlier, you mentioned that you're working on a **machine learning project using scikit-learn**.
+
+That's the extent of what you've shared about the project so far—you haven't gone into specifics about what the project does, what problem it solves, or which algorithms you're using. Would you like to tell me more about it?
+
+======================================================================
+Demo completed!
+======================================================================
+
+Memory Statistics:
+  Total memories stored: 17
+
+Sample memories:
+  - Name is Alice
+  - Familiar with scikit-learn, TensorFlow, Keras, and PyTorch libraries
+  - Can help debug machine learning code issues
+
+Note: Agent automatically stores conversations and intelligently
+decides when to search memory based on context.
