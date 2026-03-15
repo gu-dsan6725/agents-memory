@@ -263,17 +263,17 @@ Agent: Got it! I'll remember that you prefer Python.
 
 **Start the server:**
 ```bash
-uv run uvicorn agent_api:app --reload --host 127.0.0.1 --port 8000
+uv run uvicorn agent_api:app --reload --host 127.0.0.1 --port 9090
 ```
 
 **Test /ping:**
 ```bash
-curl http://127.0.0.1:8000/ping
+curl http://127.0.0.1:9090/ping
 ```
 
 **Test /invocation with Alice:**
 ```bash
-curl -X POST http://127.0.0.1:8000/invocation \
+curl -X POST http://127.0.0.1:9090/invocation \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": "alice",
@@ -284,7 +284,7 @@ curl -X POST http://127.0.0.1:8000/invocation \
 
 **Test /invocation with Carol (same question as Alice):**
 ```bash
-curl -X POST http://127.0.0.1:8000/invocation \
+curl -X POST http://127.0.0.1:9090/invocation \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": "carol",
@@ -315,25 +315,25 @@ Expected: Carol should get "I don't know" response.
 ### Evaluation Criteria (70 Points Total)
 
 **Implementation (28 points):**
-- FastAPI application runs correctly - 10 pts
-- `/ping` and `/invocation` endpoints work - 8 pts
-- Proper Pydantic models for requests - 5 pts
-- Correct parameter handling (user_id, run_id, query, metadata) - 5 pts
+- FastAPI application with `/ping` and `/invocation` endpoints
+- Proper Pydantic models for requests
+- Correct parameter handling (user_id, run_id, query, metadata)
+- Application runs without errors
 
 **Multi-Tenant Isolation (21 points):**
-- Alice and Carol have separate memory spaces - 10 pts
-- Carol can't access Alice's preferences/information - 8 pts
-- Demonstrates "I don't know" response for Carol - 3 pts
+- Alice and Carol have separate memory spaces
+- Carol can't access Alice's preferences/information
+- Demonstrates "I don't know" response for Carol
 
 **Multi-Session Tracking (14 points):**
-- Alice's Session 2 recalls Session 1 information - 8 pts
-- run_id properly isolates sessions - 4 pts
-- Cross-session memory retrieval demonstrated - 2 pts
+- Alice's Session 2 recalls Session 1 information
+- run_id properly isolates sessions
+- Cross-session memory retrieval demonstrated
 
 **Output Quality (7 points):**
-- Clean conversation format (no logs/debug info) - 3 pts
-- All required utterances present - 2 pts
-- Clear demonstration of memory behavior - 2 pts
+- Clean conversation format (no logs/debug info)
+- All required utterances present
+- Clear demonstration of memory behavior
 
 ### Tips
 
