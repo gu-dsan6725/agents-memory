@@ -56,7 +56,7 @@ The demo takes about 30-60 seconds to complete.
 
 **⚠️ ACADEMIC INTEGRITY REQUIREMENT:**
 
-You MUST write your explanation document **yourself** - do NOT use ChatGPT, Claude, or any other AI tool to generate this document. This is an analysis exercise to ensure you understand the system. AI-generated submissions will receive a zero.
+You MUST write your explanation document **yourself** - no AI use please. This is an analysis exercise to ensure you understand the system. AI-generated submissions will receive a zero.
 
 **Task:** Create a file named `agent_output_explanation.md` analyzing your `agent_output.log`.
 
