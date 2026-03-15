@@ -135,10 +135,14 @@ def _patch_mem0_litellm():
 
         # Replace the method
         LiteLLM.generate_response = patched_generate_response
+        print("✓ Successfully patched Mem0 LiteLLM for Anthropic compatibility")
         logger.info("Successfully patched Mem0 LiteLLM for Anthropic compatibility")
 
     except Exception as e:
+        print(f"✗ Could not patch Mem0 LiteLLM: {e}")
         logger.warning(f"Could not patch Mem0 LiteLLM: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 # Apply the patch immediately
@@ -430,13 +434,23 @@ class MemoryManager:
             # Search using Mem0 async backend with filters
             results = await self.memory.search(**search_params)
 
+            # DEBUG: Log raw results from Mem0
+            logger.debug(f"Raw Mem0 search results type: {type(results)}")
+            logger.debug(f"Raw Mem0 search results: {results}")
+
+            # Handle Mem0 returning dict with 'results' key
+            if isinstance(results, dict):
+                results = results.get("results", [])
+                logger.debug(f"Extracted results list: {results}")
+
             if not results:
                 logger.info("No memories found for query")
                 return []
 
             # Normalize results to consistent format
             memories = []
-            for mem in results:
+            for i, mem in enumerate(results):
+                logger.debug(f"Processing result {i}: type={type(mem)}, value={mem}")
                 if isinstance(mem, dict):
                     memories.append({
                         "id": mem.get("id", "unknown"),
