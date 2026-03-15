@@ -12,7 +12,7 @@ Before starting Problem 2, review the streaming stock agent example from the Adv
 
 ---
 
-## Problem 1: Understanding the Memory Agent (10 Points)
+## Problem 1: Understanding the Memory Agent (30 Points)
 
 ### Objective
 
@@ -88,16 +88,16 @@ git add agent_output.log agent_output_explanation.md
 git commit -m "Problem 1: Memory agent demo and analysis"
 ```
 
-### Deliverables (10 Points)
+### Deliverables (30 Points)
 
 **Required files (both must be committed to git):**
 
-1. **agent_output.log** (3 points)
+1. **agent_output.log** (10 points)
    - Shows successful execution of demo
    - Contains all 7 conversation turns
    - Includes memory statistics at end
 
-2. **agent_output_explanation.md** (7 points)
+2. **agent_output_explanation.md** (20 points)
    - Written by YOU (not AI-generated) ⚠️
    - Analyzes the log file with specific examples
    - Identifies all 4 memory types with quotes from output
@@ -106,15 +106,15 @@ git commit -m "Problem 1: Memory agent demo and analysis"
 
 ### Evaluation Criteria
 
-**Execution (3 points):**
-- ✅ `agent_output.log` exists and shows complete demo (all 7 turns)
-- ✅ Log shows initialization with user_id, agent_id, session_id
-- ✅ Log includes memory statistics
+**Execution (10 points):**
+- ✅ `agent_output.log` exists and shows complete demo (all 7 turns) - 5 pts
+- ✅ Log shows initialization with user_id, agent_id, session_id - 3 pts
+- ✅ Log includes memory statistics - 2 pts
 
-**Analysis (7 points):**
-- **Thoroughness** (3 pts): Covers all required topics (session info, memory types, tool usage, recall patterns, single-session concept)
-- **Specificity** (2 pts): Cites specific examples/quotes from output, includes line numbers or turn numbers
-- **Understanding** (2 pts): Explanations show genuine comprehension, written in student's own words (not AI-generated)
+**Analysis (20 points):**
+- **Thoroughness** (10 pts): Covers all required topics (session info, memory types, tool usage, recall patterns, single-session concept)
+- **Specificity** (6 pts): Cites specific examples/quotes from output, includes line numbers or turn numbers
+- **Understanding** (4 pts): Explanations show genuine comprehension, written in student's own words (not AI-generated)
 
 **Academic Integrity:**
 - AI-generated submissions = **0 points** for analysis portion
@@ -123,7 +123,7 @@ git commit -m "Problem 1: Memory agent demo and analysis"
 
 ---
 
-## Problem 2: FastAPI Agent Application
+## Problem 2: FastAPI Agent Application (70 Points)
 
 ### Objective
 
@@ -312,28 +312,28 @@ Expected: Carol should get "I don't know" response.
    - No logs, tool calls, or debug information
    - Easy to read and verify behavior
 
-### Evaluation Criteria
+### Evaluation Criteria (70 Points Total)
 
-**Implementation (40%):**
-- FastAPI application runs correctly
-- `/ping` and `/invocation` endpoints work
-- Proper Pydantic models for requests
-- Correct parameter handling (user_id, run_id, query, metadata)
+**Implementation (28 points):**
+- FastAPI application runs correctly - 10 pts
+- `/ping` and `/invocation` endpoints work - 8 pts
+- Proper Pydantic models for requests - 5 pts
+- Correct parameter handling (user_id, run_id, query, metadata) - 5 pts
 
-**Multi-Tenant Isolation (30%):**
-- Alice and Carol have separate memory spaces
-- Carol can't access Alice's preferences/information
-- Demonstrates "I don't know" response for Carol
+**Multi-Tenant Isolation (21 points):**
+- Alice and Carol have separate memory spaces - 10 pts
+- Carol can't access Alice's preferences/information - 8 pts
+- Demonstrates "I don't know" response for Carol - 3 pts
 
-**Multi-Session Tracking (20%):**
-- Alice's Session 2 recalls Session 1 information
-- run_id properly isolates sessions
-- Cross-session memory retrieval demonstrated
+**Multi-Session Tracking (14 points):**
+- Alice's Session 2 recalls Session 1 information - 8 pts
+- run_id properly isolates sessions - 4 pts
+- Cross-session memory retrieval demonstrated - 2 pts
 
-**Output Quality (10%):**
-- Clean conversation format (no logs/debug info)
-- All required utterances present
-- Clear demonstration of memory behavior
+**Output Quality (7 points):**
+- Clean conversation format (no logs/debug info) - 3 pts
+- All required utterances present - 2 pts
+- Clear demonstration of memory behavior - 2 pts
 
 ### Tips
 
