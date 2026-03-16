@@ -1,4 +1,4 @@
-# Agent Memory Patterns: Course Labs
+# Agent Memory Patterns
 
 This repository contains a hands-on lab that teaches production-ready memory management for AI agents using modern open-source tools. Learn how to build agents with semantic memory capabilities using Mem0, Strands SDK, and Groq.
 
