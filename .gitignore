@@ -39,6 +39,7 @@ Thumbs.db
 logs/
 output/
 *.txt
+!**/prompts/*.txt
 
 # Memory data
 data/
